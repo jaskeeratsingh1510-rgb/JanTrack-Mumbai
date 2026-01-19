@@ -24,6 +24,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             <Link href="/"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>Home</a></Link>
+            <Link href="/ward-map"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/ward-map' ? 'text-primary' : 'text-muted-foreground'}`}>Ward Map</a></Link>
             <Link href="/dashboard"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/dashboard' ? 'text-primary' : 'text-muted-foreground'}`}>Dashboard</a></Link>
             <Link href="/report-issue"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/report-issue' ? 'text-primary' : 'text-muted-foreground'}`}>Report Issue</a></Link>
           </nav>
@@ -43,9 +44,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="md:hidden border-t p-4 space-y-4 bg-background animate-in slide-in-from-top-5">
             <nav className="flex flex-col gap-4">
               <Link href="/"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Home</a></Link>
-              <Link href="/dashboard"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Constituency Dashboard</a></Link>
+              <Link href="/ward-map"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Ward Map</a></Link>
+              <Link href="/dashboard"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Dashboard</a></Link>
               <Link href="/report-issue"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Report Issue</a></Link>
-              <Link href="/about"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>About</a></Link>
             </nav>
             <div className="pt-4 border-t">
               <Button className="w-full rounded-full">Login</Button>
@@ -101,7 +102,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="container mx-auto px-4 mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          © 2026 CivicEye Foundation. All rights reserved.
+          © 2026 MumbaiTracker Foundation. All rights reserved.
         </div>
       </footer>
     </div>

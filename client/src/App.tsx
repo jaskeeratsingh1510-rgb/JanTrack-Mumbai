@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import CandidateProfile from "@/pages/candidate-profile";
 import Dashboard from "@/pages/dashboard";
 import ReportIssue from "@/pages/report-issue";
+import WardMap from "@/pages/ward-map";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/candidate/:id" component={CandidateProfile} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/ward-map" component={WardMap} />
       <Route path="/report-issue" component={ReportIssue} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
