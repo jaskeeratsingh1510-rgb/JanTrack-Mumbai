@@ -21,9 +21,30 @@ import {
   Users
 } from "lucide-react";
 
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+
 export default function CandidateProfile() {
   const [, params] = useRoute("/candidate/:id");
   const candidate = MOCK_CANDIDATES.find(c => c.id === params?.id);
+  const [feedback, setFeedback] = useState([
+    { id: 1, user: "Amit S.", date: "2 days ago", text: "The coastal road progress is visible, but the traffic management near Worli is still a mess.", rating: 4 },
+    { id: 2, user: "Neha K.", date: "1 week ago", text: "Promised school digital labs are great, but teacher training is missing.", rating: 3 }
+  ]);
+  const [newComment, setNewComment] = useState("");
+
+  const handleAddFeedback = () => {
+    if (!newComment.trim()) return;
+    setFeedback([{
+      id: Date.now(),
+      user: "You (Verified)",
+      date: "Just now",
+      text: newComment,
+      rating: 5
+    }, ...feedback]);
+    setNewComment("");
+  };
 
   if (!candidate) {
     return <Layout><div className="container mx-auto p-20 text-center">Candidate not found</div></Layout>;
@@ -203,16 +224,38 @@ export default function CandidateProfile() {
           </TabsContent>
 
           <TabsContent value="feedback" className="animate-in fade-in-50 duration-500">
-            <Card>
-              <CardContent className="p-12 text-center text-muted-foreground">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users size={32} />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Verified Citizen Feedback</h3>
-                <p>Login with your Voter ID to view and submit feedback for this candidate.</p>
-                <Button className="mt-6" variant="outline">Login to Verify</Button>
-              </CardContent>
-            </Card>
+            <div className="space-y-8 max-w-3xl mx-auto">
+              <Card>
+                <CardContent className="pt-6 space-y-4">
+                  <h3 className="font-serif font-bold text-lg">Leave verified feedback</h3>
+                  <Textarea 
+                    placeholder="Share your experience with this candidate's work..." 
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                  />
+                  <div className="flex justify-end">
+                    <Button onClick={handleAddFeedback}>Post Feedback</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-4">
+                {feedback.map((item) => (
+                  <div key={item.id} className="flex gap-4 p-4 border rounded-xl bg-card">
+                    <Avatar>
+                      <AvatarFallback>{item.user[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-sm">{item.user}</span>
+                        <span className="text-xs text-muted-foreground">{item.date}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

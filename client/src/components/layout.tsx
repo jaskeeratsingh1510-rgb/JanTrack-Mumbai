@@ -30,7 +30,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <Button size="sm" variant="default" className="rounded-full px-6 font-medium">Login</Button>
+            <Link href="/login">
+              <Button size="sm" variant="default" className="rounded-full px-6 font-medium">Login</Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -49,7 +51,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Link href="/report-issue"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Report Issue</a></Link>
             </nav>
             <div className="pt-4 border-t">
-              <Button className="w-full rounded-full">Login</Button>
+              <Link href="/login">
+                <Button className="w-full rounded-full" onClick={() => setIsMenuOpen(false)}>Login</Button>
+              </Link>
             </div>
           </div>
         )}

@@ -9,6 +9,7 @@ import CandidateProfile from "@/pages/candidate-profile";
 import Dashboard from "@/pages/dashboard";
 import ReportIssue from "@/pages/report-issue";
 import WardMap from "@/pages/ward-map";
+import AuthPage from "@/pages/auth";
 
 function Router() {
   return (
@@ -18,6 +19,8 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/ward-map" component={WardMap} />
       <Route path="/report-issue" component={ReportIssue} />
+      <Route path="/login" component={AuthPage} />
+      <Route path="/signup" component={AuthPage} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
