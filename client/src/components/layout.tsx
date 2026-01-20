@@ -24,6 +24,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             <Link href="/"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`}>Home</a></Link>
+            <Link href="/candidates"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/candidates' ? 'text-primary' : 'text-muted-foreground'}`}>Candidates</a></Link>
             <Link href="/ward-map"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/ward-map' ? 'text-primary' : 'text-muted-foreground'}`}>Ward Map</a></Link>
             <Link href="/dashboard"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/dashboard' ? 'text-primary' : 'text-muted-foreground'}`}>Dashboard</a></Link>
             <Link href="/report-issue"><a className={`text-sm font-medium hover:text-primary transition-colors ${location === '/report-issue' ? 'text-primary' : 'text-muted-foreground'}`}>Report Issue</a></Link>

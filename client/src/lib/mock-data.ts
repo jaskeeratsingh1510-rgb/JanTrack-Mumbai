@@ -12,12 +12,13 @@ export interface Candidate {
   name: string;
   party: string;
   constituency: string;
+  ward: string;
   age: number;
   education: string;
   image: string;
   criminalCases: number;
   assets: string;
-  attendance: number; // Percentage
+  attendance: number;
   promises: Promise[];
   funds: {
     allocated: number;
@@ -27,123 +28,216 @@ export interface Candidate {
   bio: string;
 }
 
+const generateMockPromises = (idPrefix: string) => [
+  {
+    id: `${idPrefix}-p1`,
+    title: "Water Supply Improvement",
+    description: "Ensure 24/7 water supply to all societies.",
+    status: 'in-progress' as const,
+    category: "Utilities",
+    completionPercentage: 45
+  },
+  {
+    id: `${idPrefix}-p2`,
+    title: "Park Maintenance",
+    description: "Regular cleaning and landscaping of local parks.",
+    status: 'completed' as const,
+    category: "Environment",
+    completionPercentage: 100
+  }
+];
+
 export const MOCK_CANDIDATES: Candidate[] = [
   {
     id: "1",
     name: "Aakash Mehta",
     party: "Mumbai Development Front",
     constituency: "Mumbai South",
+    ward: "Ward 1",
     age: 48,
     education: "MBA, University of Mumbai",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256",
     criminalCases: 0,
     assets: "₹12.5 Cr",
     attendance: 88,
-    bio: "Focusing on Mumbai's coastal road projects and local train infrastructure. A former corporate leader committed to urban efficiency.",
-    promises: [
-      {
-        id: "p1",
-        title: "Coastal Road Phase 2",
-        description: "Complete the connection from Worli to Nariman Point.",
-        status: "in-progress",
-        category: "Infrastructure",
-        completionPercentage: 75
-      },
-      {
-        id: "p2",
-        title: "Public School Tech-Lab",
-        description: "Equip 50 BMC schools with modern coding labs.",
-        status: "completed",
-        category: "Education",
-        completionPercentage: 100
-      },
-      {
-        id: "p3",
-        title: "Dharavi Redevelopment",
-        description: "Initiate housing allotment for Phase 1 residents.",
-        status: "not-started",
-        category: "Housing",
-        completionPercentage: 0
-      }
-    ],
-    funds: {
-      allocated: 150000000,
-      utilized: 110000000,
-      projects: [
-        { name: "Marine Drive Beautification", cost: 25000000, status: "Completed" },
-        { name: "CCTV Network Expansion", cost: 45000000, status: "In Progress" },
-        { name: "Garden Restoration", cost: 15000000, status: "Completed" }
-      ]
-    }
+    bio: "Focusing on Mumbai's coastal road projects and local train infrastructure.",
+    promises: generateMockPromises("1"),
+    funds: { allocated: 150000000, utilized: 110000000, projects: [] }
   },
   {
     id: "2",
     name: "Priya Sawant",
     party: "Shiv Sena (UBT)",
     constituency: "Mumbai North West",
+    ward: "Ward 2",
     age: 42,
     education: "LL.M., Government Law College",
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256",
     criminalCases: 1,
     assets: "₹4.2 Cr",
     attendance: 95,
-    bio: "Advocating for the protection of Aarey Forest and improving healthcare services in the western suburbs.",
-    promises: [
-      {
-        id: "p4",
-        title: "Aarey Protection Act",
-        description: "Formalize the forest boundaries to prevent further encroachment.",
-        status: "completed",
-        category: "Environment",
-        completionPercentage: 100
-      },
-      {
-        id: "p5",
-        title: "Suburban Multi-specialty Hospital",
-        description: "Build a new 500-bed hospital in Andheri.",
-        status: "in-progress",
-        category: "Healthcare",
-        completionPercentage: 30
-      }
-    ],
-    funds: {
-      allocated: 120000000,
-      utilized: 45000000,
-      projects: [
-        { name: "Hospital Foundation", cost: 35000000, status: "In Progress" },
-        { name: "Mangrove Cleanup", cost: 5000000, status: "Completed" }
-      ]
-    }
+    bio: "Advocating for the protection of Aarey Forest.",
+    promises: generateMockPromises("2"),
+    funds: { allocated: 120000000, utilized: 45000000, projects: [] }
   },
   {
     id: "3",
     name: "Suresh Prabhu",
     party: "BJP",
     constituency: "Mumbai North East",
+    ward: "Ward 3",
     age: 55,
     education: "B.E. Civil Engineering",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=256",
     criminalCases: 2,
     assets: "₹28 Cr",
     attendance: 72,
-    bio: "Veteran politician focused on industrial growth and transforming Mumbai into a global financial hub.",
-    promises: [
-      {
-        id: "p6",
-        title: "Vikhroli Flyover",
-        description: "Construct the long-pending Vikhroli east-west bridge.",
-        status: "in-progress",
-        category: "Infrastructure",
-        completionPercentage: 55
-      }
-    ],
-    funds: {
-      allocated: 200000000,
-      utilized: 95000000,
-      projects: [
-        { name: "Bridge Piling Works", cost: 60000000, status: "In Progress" },
-        { name: "Market Modernization", cost: 20000000, status: "Completed" }
-      ]
-    }
+    bio: "Veteran politician focused on industrial growth.",
+    promises: generateMockPromises("3"),
+    funds: { allocated: 200000000, utilized: 95000000, projects: [] }
+  },
+  {
+    id: "4",
+    name: "Rahul Deshmukh",
+    party: "MNS",
+    constituency: "Dadar",
+    ward: "Ward 4",
+    age: 39,
+    education: "Graduate",
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹1.5 Cr",
+    attendance: 90,
+    bio: "Focused on local Marathi culture and employment.",
+    promises: generateMockPromises("4"),
+    funds: { allocated: 50000000, utilized: 30000000, projects: [] }
+  },
+  {
+    id: "5",
+    name: "Anjali Kulkarni",
+    party: "INC",
+    constituency: "Colaba",
+    ward: "Ward 5",
+    age: 45,
+    education: "Post Graduate",
+    image: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹5 Cr",
+    attendance: 85,
+    bio: "Committed to women's safety and education.",
+    promises: generateMockPromises("5"),
+    funds: { allocated: 80000000, utilized: 60000000, projects: [] }
+  },
+  {
+    id: "6",
+    name: "Vikram Jadhav",
+    party: "NCP",
+    constituency: "Bandra",
+    ward: "Ward 6",
+    age: 50,
+    education: "Graduate",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 1,
+    assets: "₹10 Cr",
+    attendance: 80,
+    bio: "Promoting sustainable urban development.",
+    promises: generateMockPromises("6"),
+    funds: { allocated: 120000000, utilized: 80000000, projects: [] }
+  },
+  {
+    id: "7",
+    name: "Sunita More",
+    party: "Independent",
+    constituency: "Andheri",
+    ward: "Ward 7",
+    age: 41,
+    education: "Social Worker",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹80 Lakh",
+    attendance: 98,
+    bio: "Grassroots worker focusing on slum sanitation.",
+    promises: generateMockPromises("7"),
+    funds: { allocated: 30000000, utilized: 28000000, projects: [] }
+  },
+  {
+    id: "8",
+    name: "Sameer Sheikh",
+    party: "AAP",
+    constituency: "Kurla",
+    ward: "Ward 8",
+    age: 35,
+    education: "Engineer",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹1.2 Cr",
+    attendance: 92,
+    bio: "Fighting for better school infrastructure and clinics.",
+    promises: generateMockPromises("8"),
+    funds: { allocated: 60000000, utilized: 40000000, projects: [] }
+  },
+  {
+    id: "9",
+    name: "Rohan Patil",
+    party: "BJP",
+    constituency: "Borivali",
+    ward: "Ward 9",
+    age: 52,
+    education: "Lawyer",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹15 Cr",
+    attendance: 75,
+    bio: "Focused on infrastructure and connectivity.",
+    promises: generateMockPromises("9"),
+    funds: { allocated: 180000000, utilized: 120000000, projects: [] }
+  },
+  {
+    id: "10",
+    name: "Meera Nair",
+    party: "SS (UBT)",
+    constituency: "Chembur",
+    ward: "Ward 10",
+    age: 46,
+    education: "Doctor",
+    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹6 Cr",
+    attendance: 88,
+    bio: "Improving public health facilities in eastern suburbs.",
+    promises: generateMockPromises("10"),
+    funds: { allocated: 90000000, utilized: 70000000, projects: [] }
+  },
+  {
+    id: "11",
+    name: "Ganesh Tawde",
+    party: "NCP (AP)",
+    constituency: "Worli",
+    ward: "Ward 11",
+    age: 49,
+    education: "Post Graduate",
+    image: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 2,
+    assets: "₹20 Cr",
+    attendance: 65,
+    bio: "Urban planning and development expert.",
+    promises: generateMockPromises("11"),
+    funds: { allocated: 250000000, utilized: 150000000, projects: [] }
+  },
+  {
+    id: "12",
+    name: "Kavita Shah",
+    party: "Independent",
+    constituency: "Ghatkopar",
+    ward: "Ward 12",
+    age: 38,
+    education: "Social Activist",
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹50 Lakh",
+    attendance: 99,
+    bio: "Independent voice for local community issues.",
+    promises: generateMockPromises("12"),
+    funds: { allocated: 20000000, utilized: 18000000, projects: [] }
   }
 ];

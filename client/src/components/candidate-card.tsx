@@ -49,7 +49,7 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-serif font-bold text-xl text-primary group-hover:text-secondary-foreground transition-colors">{candidate.name}</h3>
-            <p className="text-sm text-muted-foreground font-medium">{candidate.party} • {candidate.constituency}</p>
+            <p className="text-sm text-muted-foreground font-medium">{candidate.party} • {candidate.ward} ({candidate.constituency})</p>
           </div>
         </div>
       </CardHeader>

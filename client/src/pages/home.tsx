@@ -4,6 +4,7 @@ import { CandidateCard } from "@/components/candidate-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, TrendingUp, Users } from "lucide-react";
+import { Link } from "wouter";
 import generatedImage from '@assets/generated_images/abstract_civic_data_map_background.png';
 
 export default function Home() {
@@ -131,17 +132,21 @@ export default function Home() {
                 The most viewed candidate profiles in your region this week.
               </p>
             </div>
-            <Button variant="outline" className="hidden md:flex">View All Candidates</Button>
+            <Link href="/candidates">
+              <Button variant="outline" className="hidden md:flex">View All Candidates</Button>
+            </Link>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MOCK_CANDIDATES.map((candidate) => (
+            {MOCK_CANDIDATES.slice(0, 3).map((candidate) => (
               <CandidateCard key={candidate.id} candidate={candidate} />
             ))}
           </div>
           
           <div className="mt-10 text-center md:hidden">
-             <Button variant="outline" className="w-full">View All Candidates</Button>
+             <Link href="/candidates">
+                <Button variant="outline" className="w-full">View All Candidates</Button>
+             </Link>
           </div>
         </div>
       </section>

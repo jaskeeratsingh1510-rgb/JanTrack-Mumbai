@@ -10,11 +10,13 @@ import Dashboard from "@/pages/dashboard";
 import ReportIssue from "@/pages/report-issue";
 import WardMap from "@/pages/ward-map";
 import AuthPage from "@/pages/auth";
+import CandidatesPage from "@/pages/candidates";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/candidates" component={CandidatesPage} />
       <Route path="/candidate/:id" component={CandidateProfile} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/ward-map" component={WardMap} />
