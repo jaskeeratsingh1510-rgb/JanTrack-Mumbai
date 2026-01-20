@@ -10,10 +10,15 @@ export default function ComparePage() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1]);
   const ward = searchParams.get('ward');
+  const candidateId = searchParams.get('id');
 
-  const candidates = MOCK_CANDIDATES.filter(c => c.ward === ward);
+  const candidates = ward 
+    ? MOCK_CANDIDATES.filter(c => c.ward === ward)
+    : candidateId 
+      ? MOCK_CANDIDATES.filter(c => c.id === candidateId)
+      : [];
 
-  if (!ward || candidates.length === 0) {
+  if (candidates.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto p-20 text-center">
@@ -27,9 +32,13 @@ export default function ComparePage() {
     <Layout>
       <div className="bg-primary/5 border-b">
         <div className="container mx-auto px-4 py-12">
-          <h1 className="text-4xl font-serif font-bold text-primary mb-4">Compare Candidates: {ward}</h1>
+          <h1 className="text-4xl font-serif font-bold text-primary mb-4">
+            {candidates.length > 1 ? `Compare Candidates: ${ward || candidates[0].ward}` : `Candidate Details: ${candidates[0].name}`}
+          </h1>
           <p className="text-lg text-muted-foreground">
-            Sid-by-side comparison of all verified candidates contesting in this ward.
+            {candidates.length > 1 
+              ? "Side-by-side comparison of all verified candidates contesting in this ward."
+              : "Detailed breakdown of metrics for the selected candidate."}
           </p>
         </div>
       </div>

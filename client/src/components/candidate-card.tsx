@@ -81,7 +81,7 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
             View Report Card
           </Button>
         </Link>
-        <Link href={`/compare?ward=${candidate.ward}`}>
+        <Link href={`/compare?id=${candidate.id}`}>
           <Button variant="outline" className="w-full rounded-full gap-2 border-secondary/30 text-secondary-foreground hover:bg-secondary/10">
             <ArrowLeftRight size={16} /> Compare {candidate.ward} Candidates
           </Button>
