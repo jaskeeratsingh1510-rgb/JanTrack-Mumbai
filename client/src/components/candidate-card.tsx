@@ -13,7 +13,7 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
   const progress = Math.round((completedPromises / totalPromises) * 100);
 
   return (
-    <Card className="group overflow-hidden border-border/50 hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+    <Card className="group overflow-hidden border-white/20 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
       <div className="relative h-32 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="absolute top-4 right-4">
           <Badge variant={candidate.criminalCases > 0 ? "destructive" : "secondary"} className="font-medium">
@@ -29,11 +29,11 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
           </Badge>
         </div>
       </div>
-      
+
       <div className="px-6 -mt-12 relative z-10">
         <div className="relative">
-          <img 
-            src={candidate.image} 
+          <img
+            src={candidate.image}
             alt={candidate.name}
             className="w-24 h-24 rounded-xl object-cover border-4 border-background shadow-md group-hover:scale-105 transition-transform duration-300"
           />
