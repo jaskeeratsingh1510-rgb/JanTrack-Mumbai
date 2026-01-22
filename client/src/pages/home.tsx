@@ -67,7 +67,7 @@ export default function Home() {
 
         {/* Blue Tint Overlay - Comes in after image */}
         <motion.div
-          className="absolute inset-0 z-1 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40"
+          className="absolute inset-0 z-1 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
@@ -80,20 +80,20 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.5 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-sm font-medium">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
               </span>
               Mumbai Elections 2026 Tracker Live
             </div>
 
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-white leading-tight">
               Know Your Leader.<br />
-              <span className="text-secondary">Vote Informed.</span>
+              <span className="text-amber-400">Vote Informed.</span>
             </h1>
 
-            <p className="text-lg text-primary-foreground/80 max-w-xl leading-relaxed">
+            <p className="text-lg text-white/90 max-w-xl leading-relaxed">
               The verified digital report card for every candidate. Track manifesto promises,
               scrutinize funds, and make your vote count with real data.
             </p>
@@ -125,28 +125,28 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-gray-100">
             <div className="text-center p-4">
-              <div className="text-3xl font-bold text-primary font-serif">
+              <div className="text-3xl font-bold text-slate-900 font-serif">
                 <Counter value={1240} />
               </div>
-              <div className="text-sm text-muted-foreground mt-1">Candidates Tracked</div>
+              <div className="text-sm text-slate-500 mt-1">Candidates Tracked</div>
             </div>
             <div className="text-center p-4">
-              <div className="text-3xl font-bold text-primary font-serif">
+              <div className="text-3xl font-bold text-slate-900 font-serif">
                 <Counter value={450} prefix="₹" suffix="Cr" />
               </div>
-              <div className="text-sm text-muted-foreground mt-1">Funds Monitored</div>
+              <div className="text-sm text-slate-500 mt-1">Funds Monitored</div>
             </div>
             <div className="text-center p-4">
-              <div className="text-3xl font-bold text-primary font-serif">
+              <div className="text-3xl font-bold text-slate-900 font-serif">
                 <Counter value={5600} />
               </div>
-              <div className="text-sm text-muted-foreground mt-1">Promises Logged</div>
+              <div className="text-sm text-slate-500 mt-1">Promises Logged</div>
             </div>
             <div className="text-center p-4">
-              <div className="text-3xl font-bold text-primary font-serif">
+              <div className="text-3xl font-bold text-slate-900 font-serif">
                 <Counter value={25000} suffix="+" />
               </div>
-              <div className="text-sm text-muted-foreground mt-1">Verified Reports</div>
+              <div className="text-sm text-slate-500 mt-1">Verified Reports</div>
             </div>
           </div>
         </div>

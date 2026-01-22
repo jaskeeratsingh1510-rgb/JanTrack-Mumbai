@@ -1,7 +1,5 @@
 import { Layout } from "@/components/layout";
 import { CandidateCard } from "@/components/candidate-card";
-import { CandidateCardSkeleton } from "@/components/candidate-card-skeleton";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowLeftRight, Loader2 } from "lucide-react";
@@ -56,24 +54,8 @@ export default function CandidatesPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="bg-primary/5 border-b">
-          <div className="container mx-auto px-4 py-12">
-            <div className="space-y-4">
-              <Skeleton className="h-10 w-64" />
-              <Skeleton className="h-6 w-96" />
-            </div>
-          </div>
-        </div>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <Skeleton className="h-10 flex-1" />
-            <Skeleton className="h-10 w-[200px]" />
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <CandidateCardSkeleton key={i} />
-            ))}
-          </div>
+        <div className="flex justify-center items-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
