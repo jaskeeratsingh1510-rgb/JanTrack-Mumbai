@@ -50,12 +50,12 @@ const generateMockPromises = (idPrefix: string) => [
 export const MOCK_CANDIDATES: Candidate[] = [
   {
     id: "1",
-    name: "Aakash Mehta",
-    party: "Mumbai Development Front",
+    name: "Forum Jiten Parmar",
+    party: "Shiv Sena(UBT)",
     constituency: "Mumbai South",
     ward: "Ward 1",
     age: 48,
-    education: "MBA, University of Mumbai",
+    education: "BMM",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256",
     criminalCases: 0,
     assets: "₹12.5 Cr",
@@ -258,6 +258,22 @@ export const MOCK_CANDIDATES: Candidate[] = [
   },
   {
     id: "12",
+    name: "Kavita Shah",
+    party: "Independent",
+    constituency: "Ghatkopar",
+    ward: "Ward 12",
+    age: 38,
+    education: "Social Activist",
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=256",
+    criminalCases: 0,
+    assets: "₹50 Lakh",
+    attendance: 99,
+    bio: "Independent voice for local community issues.",
+    promises: generateMockPromises("12"),
+    funds: { allocated: 20000000, utilized: 18000000, projects: [] }
+  },
+  {
+    id: "13",
     name: "Kavita Shah",
     party: "Independent",
     constituency: "Ghatkopar",

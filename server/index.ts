@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -11,6 +12,7 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
 
 app.use(
   express.json({
@@ -59,7 +61,10 @@ app.use((req, res, next) => {
   next();
 });
 
+import { connectDB } from "./db";
+
 (async () => {
+  await connectDB();
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

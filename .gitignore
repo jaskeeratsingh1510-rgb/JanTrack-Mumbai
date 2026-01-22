@@ -6,3 +6,9 @@ vite.config.ts.*
 *.tar.gz
 .local
 error.log
+
+
+
+
+
+.env
