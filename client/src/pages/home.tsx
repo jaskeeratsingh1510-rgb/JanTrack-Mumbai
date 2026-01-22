@@ -1,25 +1,68 @@
 import { Layout } from "@/components/layout";
-import { MOCK_CANDIDATES } from "@/lib/mock-data";
 import { CandidateCard } from "@/components/candidate-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, TrendingUp, Users } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 
+// Reuse Candidate Interface
+interface Candidate {
+  id: string;
+  name: string;
+  party: string;
+  constituency: string;
+  ward: string;
+  age: number;
+  education: string;
+  image: string;
+  criminalCases: number;
+  assets: string;
+  attendance: number;
+  promises: any[];
+  funds: {
+    allocated: number;
+    utilized: number;
+    projects: any[];
+  };
+  bio: string;
+}
 
 export default function Home() {
+  const { data: candidates = [] } = useQuery<Candidate[]>({
+    queryKey: ["/api/candidates"],
+  });
+
   return (
     <Layout>
       {/* Hero Section */}
       <section className="relative bg-primary overflow-hidden min-h-[600px] flex items-center">
         {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
+        <motion.div
+          className="absolute inset-0 z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
           <img src={"https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=2070&auto=format&fit=crop"} alt="Civic Data Map" className="w-full h-full object-cover" />
-        </div>
-        <div className="absolute inset-0 z-1 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40"></div>
+        </motion.div>
+
+        {/* Blue Tint Overlay - Comes in after image */}
+        <motion.div
+          className="absolute inset-0 z-1 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+        ></motion.div>
 
         <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 animate-in slide-in-from-left-5 duration-700">
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.5 }}
+          >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-sm font-medium">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
@@ -50,51 +93,9 @@ export default function Home() {
                 Search
               </Button>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="hidden md:block relative animate-in slide-in-from-right-5 duration-1000 delay-200">
-            {/* Abstract UI composition */}
-            <div className="relative z-10 bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
-              <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-bold text-primary">RK</div>
-                  <div>
-                    <div className="text-white font-serif font-bold">Rajesh Kumar</div>
-                    <div className="text-white/60 text-xs">South City • Progress Party</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-green-400">85%</div>
-                  <div className="text-white/40 text-xs uppercase tracking-wider">Promise Score</div>
-                </div>
-              </div>
 
-              <div className="space-y-4">
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-white/80">Metro Expansion</span>
-                    <span className="text-secondary text-xs bg-secondary/10 px-2 py-0.5 rounded">In Progress</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-secondary w-[60%]"></div>
-                  </div>
-                </div>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-white/80">New Public Library</span>
-                    <span className="text-green-400 text-xs bg-green-400/10 px-2 py-0.5 rounded">Completed</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-400 w-[100%]"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Decorative background elements */}
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
-          </div>
         </div>
       </section>
 
@@ -138,7 +139,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MOCK_CANDIDATES.slice(0, 3).map((candidate) => (
+            {candidates.slice(0, 3).map((candidate) => (
               <CandidateCard key={candidate.id} candidate={candidate} />
             ))}
           </div>

@@ -1,29 +1,75 @@
 import { Layout } from "@/components/layout";
-import { MOCK_CANDIDATES } from "@/lib/mock-data";
 import { CandidateCard } from "@/components/candidate-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowLeftRight } from "lucide-react";
+import { Search, ArrowLeftRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+
+// Define Candidate Type (matching the one in admin.tsx/API)
+export interface Candidate {
+  id: string;
+  name: string;
+  party: string;
+  constituency: string;
+  ward: string;
+  age: number;
+  education: string;
+  image: string;
+  criminalCases: number;
+  assets: string;
+  attendance: number;
+  promises: any[];
+  funds: {
+    allocated: number;
+    utilized: number;
+    projects: any[];
+  };
+  bio: string;
+}
 
 export default function CandidatesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [wardFilter, setWardFilter] = useState("all");
 
-  const filteredCandidates = MOCK_CANDIDATES.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         c.constituency.toLowerCase().includes(searchTerm.toLowerCase());
+  const { data: candidates = [], isLoading, error } = useQuery<Candidate[]>({
+    queryKey: ["/api/candidates"],
+  });
+
+  const filteredCandidates = candidates.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.constituency.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWard = wardFilter === "all" || c.ward === wardFilter;
     return matchesSearch && matchesWard;
   });
 
-  const uniqueWards = Array.from(new Set(MOCK_CANDIDATES.map(c => c.ward))).sort((a, b) => {
-    const numA = parseInt(a.replace(/\D/g, ''));
-    const numB = parseInt(b.replace(/\D/g, ''));
+  const uniqueWards = Array.from(new Set(candidates.map(c => c.ward))).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, '')) || 0;
+    const numB = parseInt(b.replace(/\D/g, '')) || 0;
     return numA - numB;
   });
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-[50vh] text-destructive">
+          Failed to load candidates.
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -51,8 +97,8 @@ export default function CandidatesPage() {
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search by name or constituency..." 
+            <Input
+              placeholder="Search by name or constituency..."
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -76,7 +122,7 @@ export default function CandidatesPage() {
             <CandidateCard key={candidate.id} candidate={candidate} />
           ))}
         </div>
-        
+
         {filteredCandidates.length === 0 && (
           <div className="text-center py-20 text-muted-foreground">
             No candidates found matching your criteria.

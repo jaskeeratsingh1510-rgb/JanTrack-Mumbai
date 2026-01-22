@@ -31,12 +31,15 @@ export async function registerRoutes(
   app.post("/api/candidates", async (req, res) => {
     try {
       if (!req.body) {
+        console.log("POST /api/candidates: Missing body");
         return res.status(400).json({ message: "Missing body" });
       }
+      console.log("POST /api/candidates payload:", JSON.stringify(req.body, null, 2));
       const candidate = await storage.createCandidate(req.body);
       res.status(201).json(candidate);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to create candidate" });
+    } catch (error: any) {
+      console.error("Error in POST /api/candidates:", error);
+      res.status(500).json({ message: "Failed to create candidate", error: error.message });
     }
   });
 

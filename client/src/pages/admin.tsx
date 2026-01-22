@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea"; // Assuming Textarea exists, if not use Input
 import {
     Table,
     TableBody,
@@ -18,31 +19,87 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { Plus, Trash, Save } from "lucide-react";
+
+// Types
+interface PromiseItem {
+    id: string;
+    title: string;
+    description: string;
+    status: "completed" | "in-progress" | "not-started" | "broken";
+    category: string;
+    completionPercentage: number;
+}
+
+interface Project {
+    name: string;
+    cost: number;
+    status: string;
+}
+
+interface Candidate {
+    id: string;
+    name: string;
+    party: string;
+    constituency: string;
+    ward: string;
+    age: number;
+    education: string;
+    image: string;
+    criminalCases: number;
+    assets: string;
+    attendance: number;
+    promises: PromiseItem[];
+    funds: {
+        allocated: number;
+        utilized: number;
+        projects: Project[];
+    };
+    bio: string;
+}
+
+const defaultCandidate: Candidate = {
+    id: "",
+    name: "",
+    party: "",
+    constituency: "",
+    ward: "",
+    age: 0,
+    education: "",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop",
+    criminalCases: 0,
+    assets: "",
+    attendance: 0,
+    promises: [],
+    funds: {
+        allocated: 0,
+        utilized: 0,
+        projects: []
+    },
+    bio: ""
+};
 
 export default function AdminPage() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [isOpen, setIsOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [formData, setFormData] = useState<Candidate>(defaultCandidate);
 
-    // Form state
-    const [formData, setFormData] = useState({
-        id: "",
-        name: "",
-        party: "",
-        constituency: "",
-        ward: "",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop",
-        bio: "",
-    });
-
-    const { data: candidates, isLoading } = useQuery<any[]>({
+    const { data: candidates, isLoading } = useQuery<Candidate[]>({
         queryKey: ["/api/candidates"],
     });
 
     const createMutation = useMutation({
-        mutationFn: async (newCandidate: any) => {
+        mutationFn: async (newCandidate: Candidate) => {
             const res = await fetch("/api/candidates", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -63,7 +120,7 @@ export default function AdminPage() {
     });
 
     const updateMutation = useMutation({
-        mutationFn: async (candidate: any) => {
+        mutationFn: async (candidate: Candidate) => {
             const res = await fetch(`/api/candidates/${candidate.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -99,6 +156,19 @@ export default function AdminPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Manual Validation
+        if (!formData.id || !formData.name || !formData.party || !formData.constituency) {
+            toast({
+                title: "Validation Error",
+                description: "Please fill in ID, Name, Party, and Constituency in the Overview tab.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        console.log("Submitting form data:", formData);
+
         if (editingId) {
             updateMutation.mutate(formData);
         } else {
@@ -107,22 +177,55 @@ export default function AdminPage() {
     };
 
     const resetForm = () => {
-        setFormData({
-            id: "",
-            name: "",
-            party: "",
-            constituency: "",
-            ward: "",
-            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop",
-            bio: "",
-        });
+        setFormData(defaultCandidate);
         setEditingId(null);
     };
 
-    const handleEdit = (candidate: any) => {
-        setFormData(candidate);
+    const handleEdit = (candidate: Candidate) => {
+        // Ensure deep copy and default values for new fields if missing
+        setFormData({
+            ...defaultCandidate,
+            ...candidate,
+            funds: { ...defaultCandidate.funds, ...(candidate.funds || {}) },
+            promises: candidate.promises || [],
+        });
         setEditingId(candidate.id);
         setIsOpen(true);
+    };
+
+    const addPromise = () => {
+        setFormData({
+            ...formData,
+            promises: [
+                ...formData.promises,
+                { id: Date.now().toString(), title: "New Promise", description: "", status: "not-started", category: "General", completionPercentage: 0 }
+            ]
+        });
+    };
+
+    const removePromise = (index: number) => {
+        const newPromises = [...formData.promises];
+        newPromises.splice(index, 1);
+        setFormData({ ...formData, promises: newPromises });
+    };
+
+    const addProject = () => {
+        setFormData({
+            ...formData,
+            funds: {
+                ...formData.funds,
+                projects: [...formData.funds.projects, { name: "New Project", cost: 0, status: "Planned" }]
+            }
+        });
+    };
+
+    const removeProject = (index: number) => {
+        const newProjects = [...formData.funds.projects];
+        newProjects.splice(index, 1);
+        setFormData({
+            ...formData,
+            funds: { ...formData.funds, projects: newProjects }
+        });
     };
 
     return (
@@ -135,80 +238,303 @@ export default function AdminPage() {
                         if (!open) resetForm();
                     }}>
                         <DialogTrigger asChild>
-                            <Button>Add Candidate</Button>
+                            <Button className="gap-2"><Plus size={16} /> Add Candidate</Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh]">
-                            <DialogHeader>
+                        <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+                            <DialogHeader className="p-6 pb-2">
                                 <DialogTitle>{editingId ? "Edit Candidate" : "Add New Candidate"}</DialogTitle>
                             </DialogHeader>
-                            <form onSubmit={handleSubmit} className="space-y-4 grid gap-4 py-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-sm font-medium">ID (Unique)</label>
-                                        <Input
-                                            value={formData.id}
-                                            onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                                            disabled={!!editingId} // Cannot change ID when editing
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium">Name</label>
-                                        <Input
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                </div>
+                            <ScrollArea className="flex-1 p-6 pt-2">
+                                <form id="candidate-form" onSubmit={handleSubmit} className="space-y-6">
+                                    <Tabs defaultValue="overview" className="w-full">
+                                        <TabsList className="grid w-full grid-cols-4">
+                                            <TabsTrigger value="overview">Overview</TabsTrigger>
+                                            <TabsTrigger value="personal">Personal</TabsTrigger>
+                                            <TabsTrigger value="promises">Promises</TabsTrigger>
+                                            <TabsTrigger value="funds">Funds</TabsTrigger>
+                                        </TabsList>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-sm font-medium">Party</label>
-                                        <Input
-                                            value={formData.party}
-                                            onChange={(e) => setFormData({ ...formData, party: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium">Constituency</label>
-                                        <Input
-                                            value={formData.constituency}
-                                            onChange={(e) => setFormData({ ...formData, constituency: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                </div>
+                                        {/* OVERVIEW TAB */}
+                                        <TabsContent value="overview" className="space-y-4 py-4">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">ID (Unique)</label>
+                                                    <Input
+                                                        value={formData.id}
+                                                        onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                                                        disabled={!!editingId}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Name</label>
+                                                    <Input
+                                                        value={formData.name}
+                                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Party</label>
+                                                    <Input
+                                                        value={formData.party}
+                                                        onChange={(e) => setFormData({ ...formData, party: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Constituency</label>
+                                                    <Input
+                                                        value={formData.constituency}
+                                                        onChange={(e) => setFormData({ ...formData, constituency: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Ward</label>
+                                                    <Input
+                                                        value={formData.ward}
+                                                        onChange={(e) => setFormData({ ...formData, ward: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Image URL</label>
+                                                    <Input
+                                                        value={formData.image}
+                                                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Bio</label>
+                                                <Textarea
+                                                    value={formData.bio}
+                                                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                                                    className="h-20"
+                                                />
+                                            </div>
+                                        </TabsContent>
 
-                                <div>
-                                    <label className="text-sm font-medium">Ward</label>
-                                    <Input
-                                        value={formData.ward}
-                                        onChange={(e) => setFormData({ ...formData, ward: e.target.value })}
-                                    />
-                                </div>
+                                        {/* PERSONAL TAB */}
+                                        <TabsContent value="personal" className="space-y-4 py-4">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Age</label>
+                                                    <Input
+                                                        type="number"
+                                                        value={formData.age}
+                                                        onChange={(e) => setFormData({ ...formData, age: Number(e.target.value) })}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Education</label>
+                                                    <Input
+                                                        value={formData.education}
+                                                        onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Criminal Cases</label>
+                                                    <Input
+                                                        type="number"
+                                                        value={formData.criminalCases}
+                                                        onChange={(e) => setFormData({ ...formData, criminalCases: Number(e.target.value) })}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Attendance (%)</label>
+                                                    <Input
+                                                        type="number"
+                                                        value={formData.attendance}
+                                                        onChange={(e) => setFormData({ ...formData, attendance: Number(e.target.value) })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Assets</label>
+                                                <Input
+                                                    value={formData.assets}
+                                                    onChange={(e) => setFormData({ ...formData, assets: e.target.value })}
+                                                    placeholder="e.g. ₹5 Cr"
+                                                />
+                                            </div>
+                                        </TabsContent>
 
-                                <div>
-                                    <label className="text-sm font-medium">Image URL</label>
-                                    <Input
-                                        value={formData.image}
-                                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                    />
-                                </div>
+                                        {/* PROMISES TAB */}
+                                        <TabsContent value="promises" className="space-y-4 py-4">
+                                            <div className="flex justify-between items-center">
+                                                <h3 className="text-lg font-medium">Manifesto Promises</h3>
+                                                <Button type="button" size="sm" variant="outline" onClick={addPromise}>
+                                                    <Plus size={14} className="mr-1" /> Add Promise
+                                                </Button>
+                                            </div>
+                                            <div className="space-y-4">
+                                                {formData.promises.map((promise, index) => (
+                                                    <div key={index} className="border p-4 rounded-lg bg-slate-50 relative">
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="absolute top-2 right-2 text-destructive hover:bg-destructive/10"
+                                                            onClick={() => removePromise(index)}
+                                                        >
+                                                            <Trash size={16} />
+                                                        </Button>
+                                                        <div className="grid gap-3">
+                                                            <div className="grid grid-cols-2 gap-2 pr-8">
+                                                                <Input
+                                                                    placeholder="Promise Title"
+                                                                    value={promise.title}
+                                                                    onChange={(e) => {
+                                                                        const newPromises = [...formData.promises];
+                                                                        newPromises[index].title = e.target.value;
+                                                                        setFormData({ ...formData, promises: newPromises });
+                                                                    }}
+                                                                />
+                                                                <select
+                                                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                    value={promise.status}
+                                                                    onChange={(e) => {
+                                                                        const newPromises = [...formData.promises];
+                                                                        newPromises[index].status = e.target.value as any;
+                                                                        setFormData({ ...formData, promises: newPromises });
+                                                                    }}
+                                                                >
+                                                                    <option value="not-started">Not Started</option>
+                                                                    <option value="in-progress">In Progress</option>
+                                                                    <option value="completed">Completed</option>
+                                                                    <option value="broken">Broken</option>
+                                                                </select>
+                                                            </div>
+                                                            <Input
+                                                                placeholder="Category"
+                                                                value={promise.category}
+                                                                onChange={(e) => {
+                                                                    const newPromises = [...formData.promises];
+                                                                    newPromises[index].category = e.target.value;
+                                                                    setFormData({ ...formData, promises: newPromises });
+                                                                }}
+                                                            />
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <Textarea
+                                                                    placeholder="Description"
+                                                                    value={promise.description}
+                                                                    onChange={(e) => {
+                                                                        const newPromises = [...formData.promises];
+                                                                        newPromises[index].description = e.target.value;
+                                                                        setFormData({ ...formData, promises: newPromises });
+                                                                    }}
+                                                                />
+                                                                <div>
+                                                                    <label className="text-xs">Completion %</label>
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={promise.completionPercentage}
+                                                                        onChange={(e) => {
+                                                                            const newPromises = [...formData.promises];
+                                                                            newPromises[index].completionPercentage = Number(e.target.value);
+                                                                            setFormData({ ...formData, promises: newPromises });
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </TabsContent>
 
-                                <div>
-                                    <label className="text-sm font-medium">Bio</label>
-                                    <Input
-                                        value={formData.bio}
-                                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                                    />
-                                </div>
+                                        {/* FUNDS TAB */}
+                                        <TabsContent value="funds" className="space-y-4 py-4">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Allocated Funds (₹ Cr)</label>
+                                                    <Input
+                                                        type="number"
+                                                        value={formData.funds.allocated}
+                                                        onChange={(e) => setFormData({
+                                                            ...formData,
+                                                            funds: { ...formData.funds, allocated: Number(e.target.value) }
+                                                        })}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Utilized Funds (₹ Cr)</label>
+                                                    <Input
+                                                        type="number"
+                                                        value={formData.funds.utilized}
+                                                        onChange={(e) => setFormData({
+                                                            ...formData,
+                                                            funds: { ...formData.funds, utilized: Number(e.target.value) }
+                                                        })}
+                                                    />
+                                                </div>
+                                            </div>
 
-                                <Button type="submit" className="w-full" disabled={createMutation.isPending || updateMutation.isPending}>
+                                            <div className="flex justify-between items-center mt-6">
+                                                <h3 className="text-lg font-medium">Projects</h3>
+                                                <Button type="button" size="sm" variant="outline" onClick={addProject}>
+                                                    <Plus size={14} className="mr-1" /> Add Project
+                                                </Button>
+                                            </div>
+                                            <div className="space-y-3">
+                                                {formData.funds.projects.map((project, index) => (
+                                                    <div key={index} className="flex gap-2 items-center">
+                                                        <Input
+                                                            placeholder="Project Name"
+                                                            className="flex-grow"
+                                                            value={project.name}
+                                                            onChange={(e) => {
+                                                                const newProjects = [...formData.funds.projects];
+                                                                newProjects[index].name = e.target.value;
+                                                                setFormData({ ...formData, funds: { ...formData.funds, projects: newProjects } });
+                                                            }}
+                                                        />
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="Cost"
+                                                            className="w-24"
+                                                            value={project.cost}
+                                                            onChange={(e) => {
+                                                                const newProjects = [...formData.funds.projects];
+                                                                newProjects[index].cost = Number(e.target.value);
+                                                                setFormData({ ...formData, funds: { ...formData.funds, projects: newProjects } });
+                                                            }}
+                                                        />
+                                                        <Input
+                                                            placeholder="Status"
+                                                            className="w-32"
+                                                            value={project.status}
+                                                            onChange={(e) => {
+                                                                const newProjects = [...formData.funds.projects];
+                                                                newProjects[index].status = e.target.value;
+                                                                setFormData({ ...formData, funds: { ...formData.funds, projects: newProjects } });
+                                                            }}
+                                                        />
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-destructive hover:bg-destructive/10"
+                                                            onClick={() => removeProject(index)}
+                                                        >
+                                                            <Trash size={16} />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </TabsContent>
+                                    </Tabs>
+                                </form>
+                            </ScrollArea>
+                            <div className="p-6 border-t bg-white">
+                                <Button type="submit" form="candidate-form" className="w-full gap-2" disabled={createMutation.isPending || updateMutation.isPending}>
+                                    <Save size={16} />
                                     {editingId ? "Update Candidate" : "Create Candidate"}
                                 </Button>
-                            </form>
+                            </div>
                         </DialogContent>
                     </Dialog>
                 </div>

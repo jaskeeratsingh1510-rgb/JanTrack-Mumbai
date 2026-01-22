@@ -12,6 +12,7 @@ import AuthPage from "@/pages/auth";
 import CandidatesPage from "@/pages/candidates";
 import ComparePage from "@/pages/compare";
 import AdminPage from "@/pages/admin";
+import WardMap from "@/pages/ward-map";
 
 function Router() {
   return (
@@ -21,11 +22,11 @@ function Router() {
       <Route path="/compare" component={ComparePage} />
       <Route path="/candidate/:id" component={CandidateProfile} />
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/dashboard" component={Dashboard} />
       <Route path="/report-issue" component={ReportIssue} />
       <Route path="/login" component={AuthPage} />
       <Route path="/signup" component={AuthPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/ward-map" component={WardMap} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>

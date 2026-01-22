@@ -1,8 +1,31 @@
 import { Layout } from "@/components/layout";
-import { MOCK_CANDIDATES } from "@/lib/mock-data";
 import { useLocation, Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+
+// Reuse Candidate Interface
+interface Candidate {
+  id: string;
+  name: string;
+  party: string;
+  constituency: string;
+  ward: string;
+  age: number;
+  education: string;
+  image: string;
+  criminalCases: number;
+  assets: string;
+  attendance: number;
+  promises: any[];
+  funds: {
+    allocated: number;
+    utilized: number;
+    projects: any[];
+  };
+  bio: string;
+}
 
 export default function ComparePage() {
   const [location] = useLocation();
@@ -10,13 +33,37 @@ export default function ComparePage() {
   const ward = searchParams.get('ward');
   const candidateId = searchParams.get('id');
 
-  let candidates = [];
+  const { data: allCandidates = [], isLoading, error } = useQuery<Candidate[]>({
+    queryKey: ["/api/candidates"],
+  });
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-[50vh] text-destructive">
+          Failed to load candidates for comparison.
+        </div>
+      </Layout>
+    );
+  }
+
+  let candidates: Candidate[] = [];
   if (ward) {
-    candidates = MOCK_CANDIDATES.filter(c => c.ward === ward);
+    candidates = allCandidates.filter(c => c.ward === ward);
   } else if (candidateId) {
-    const mainCandidate = MOCK_CANDIDATES.find(c => c.id === candidateId);
+    const mainCandidate = allCandidates.find(c => c.id === candidateId);
     if (mainCandidate) {
-      candidates = MOCK_CANDIDATES.filter(c => c.ward === mainCandidate.ward);
+      candidates = allCandidates.filter(c => c.ward === mainCandidate.ward);
     }
   }
 
@@ -61,7 +108,10 @@ export default function ComparePage() {
           </TableHeader>
           <TableBody>
             {candidates.map(c => {
-              const score = Math.round((c.promises.filter(p => p.status === 'completed').length / c.promises.length) * 100);
+              const score = c.promises.length > 0
+                ? Math.round((c.promises.filter(p => p.status === 'completed').length / c.promises.length) * 100)
+                : 0;
+
               return (
                 <TableRow key={c.id} className="hover:bg-muted/5">
                   <TableCell className="border-r py-6">
