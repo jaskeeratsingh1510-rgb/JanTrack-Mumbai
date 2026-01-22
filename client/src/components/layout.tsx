@@ -81,64 +81,64 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      <footer className="bg-primary text-primary-foreground dark:bg-white dark:text-slate-900 py-16 mt-20 transition-colors">
+      <footer className="bg-primary text-primary-foreground py-16 mt-20">
         <div className="container mx-auto px-4 grid md:grid-cols-4 gap-12">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <div className="bg-white/10 dark:bg-slate-100 p-2 rounded-lg">
-                <ShieldCheck className="text-white dark:text-slate-900" size={24} />
+              <div className="bg-white/10 p-2 rounded-lg">
+                <ShieldCheck className="text-white" size={24} />
               </div>
-              <span className="text-2xl font-serif font-bold text-white dark:text-slate-900 tracking-tight">JanTrack</span>
+              <span className="text-2xl font-serif font-bold text-white tracking-tight">JanTrack</span>
             </div>
-            <p className="text-primary-foreground/80 dark:text-slate-600 text-sm leading-relaxed max-w-xs">
+            <p className="text-primary-foreground/80 text-sm leading-relaxed max-w-xs">
               Empowering Mumbai citizens with verified data for informed democratic participation. Transparency builds trust.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 dark:bg-slate-100 flex items-center justify-center hover:bg-white hover:text-primary dark:hover:bg-primary dark:hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary transition-colors">
                 <Twitter size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 dark:bg-slate-100 flex items-center justify-center hover:bg-white hover:text-primary dark:hover:bg-primary dark:hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary transition-colors">
                 <Facebook size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 dark:bg-slate-100 flex items-center justify-center hover:bg-white hover:text-primary dark:hover:bg-primary dark:hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary transition-colors">
                 <Linkedin size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 dark:bg-slate-100 flex items-center justify-center hover:bg-white hover:text-primary dark:hover:bg-primary dark:hover:text-white transition-colors">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary transition-colors">
                 <Github size={18} />
               </a>
             </div>
           </div>
 
           <div>
-            <h4 className="font-serif font-bold text-lg mb-6 text-white dark:text-slate-900">Platform</h4>
-            <ul className="space-y-4 text-sm text-primary-foreground/70 dark:text-slate-600">
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Candidate Search</a></li>
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Manifesto Tracker</a></li>
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Fund Utilization</a></li>
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Report Issue</a></li>
+            <h4 className="font-serif font-bold text-lg mb-6 text-white">Platform</h4>
+            <ul className="space-y-4 text-sm text-primary-foreground/70">
+              <li><a href="#" className="hover:text-white transition-colors">Candidate Search</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Manifesto Tracker</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Fund Utilization</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Report Issue</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-serif font-bold text-lg mb-6 text-white dark:text-slate-900">Legal & Help</h4>
-            <ul className="space-y-4 text-sm text-primary-foreground/70 dark:text-slate-600">
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Voter Guide</a></li>
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white dark:hover:text-primary transition-colors">Contact Support</a></li>
+            <h4 className="font-serif font-bold text-lg mb-6 text-white">Legal & Help</h4>
+            <ul className="space-y-4 text-sm text-primary-foreground/70">
+              <li><a href="#" className="hover:text-white transition-colors">Voter Guide</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Contact Support</a></li>
             </ul>
           </div>
 
           <div className="space-y-6">
-            <h4 className="font-serif font-bold text-lg text-white dark:text-slate-900">Stay Informed</h4>
-            <p className="text-sm text-primary-foreground/70 dark:text-slate-600">
+            <h4 className="font-serif font-bold text-lg text-white">Stay Informed</h4>
+            <p className="text-sm text-primary-foreground/70">
               Get the latest candidate analysis and ward reports directly in your inbox.
             </p>
             <div className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-white/10 dark:bg-slate-100 border border-white/20 dark:border-slate-300 rounded-md px-4 py-2 text-sm text-white dark:text-slate-900 placeholder:text-white/50 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-secondary/50"
               />
               <Button className="w-full bg-secondary text-primary hover:bg-white font-bold">
                 Subscribe
@@ -146,7 +146,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <div className="container mx-auto px-4 mt-16 pt-8 border-t border-white/10 dark:border-slate-200 text-center text-sm text-primary-foreground/50 dark:text-slate-500">
+        <div className="container mx-auto px-4 mt-16 pt-8 border-t border-white/10 text-center text-sm text-primary-foreground/50">
           © 2026 JanTrack Mumbai Foundation. All rights reserved. • Built for Democracy.
         </div>
       </footer>
