@@ -38,7 +38,11 @@ export default function CandidatesPage() {
     queryKey: ["/api/candidates"],
   });
 
-  const filteredCandidates = candidates.filter(c => {
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    return (parseInt(a.id) || 0) - (parseInt(b.id) || 0);
+  });
+
+  const filteredCandidates = sortedCandidates.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.constituency.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWard = wardFilter === "all" || c.ward === wardFilter;

@@ -98,6 +98,10 @@ export default function AdminPage() {
         queryKey: ["/api/candidates"],
     });
 
+    const sortedCandidates = [...(candidates || [])].sort((a, b) => {
+        return (parseInt(a.id) || 0) - (parseInt(b.id) || 0);
+    });
+
     const { data: user, isLoading: isUserLoading } = useQuery({
         queryKey: ["/api/user"],
     });
@@ -566,7 +570,7 @@ export default function AdminPage() {
                                             </Tabs>
                                         </form>
                                     </ScrollArea>
-                                    <div className="p-6 border-t bg-white">
+                                    <div className="p-6 border-t bg-background">
                                         <Button type="submit" form="candidate-form" className="w-full gap-2" disabled={createMutation.isPending || updateMutation.isPending}>
                                             <Save size={16} />
                                             {editingId ? "Update Candidate" : "Create Candidate"}
@@ -578,7 +582,7 @@ export default function AdminPage() {
                     </div>
 
                     <TabsContent value="overview">
-                        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+                        <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -594,12 +598,12 @@ export default function AdminPage() {
                                         <TableRow>
                                             <TableCell colSpan={5} className="text-center py-8">Loading...</TableCell>
                                         </TableRow>
-                                    ) : candidates?.length === 0 ? (
+                                    ) : sortedCandidates.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={5} className="text-center py-8">No candidates found</TableCell>
                                         </TableRow>
                                     ) : (
-                                        candidates?.map((candidate: any) => (
+                                        sortedCandidates.map((candidate: any) => (
                                             <TableRow key={candidate.id}>
                                                 <TableCell className="font-medium">{candidate.id}</TableCell>
                                                 <TableCell>{candidate.name}</TableCell>

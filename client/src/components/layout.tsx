@@ -3,12 +3,36 @@ import { Search, Menu, X, ShieldCheck, Twitter, Facebook, Linkedin, Github } fro
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { User } from "@shared/schema";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: user } = useQuery<User>({ queryKey: ["/api/user"], retry: false });
+  const { toast } = useToast();
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await fetch("/api/logout", { method: "POST" });
+    },
+    onSuccess: () => {
+      window.location.href = "/";
+    },
+    onError: () => {
+      toast({ title: "Logout failed", variant: "destructive" });
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground flex flex-col">
@@ -48,9 +72,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="hidden md:flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/login">
-              <Button size="sm" variant="default" className="rounded-full px-6 font-medium">Login</Button>
-            </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="font-medium text-sm">
+                    Hi, {user.username}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/login">
+                <Button size="sm" variant="default" className="rounded-full px-6 font-medium">Login</Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -69,9 +108,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Link href="/report-issue"><a className="text-base font-medium" onClick={() => setIsMenuOpen(false)}>Report Issue</a></Link>
             </nav>
             <div className="pt-4 border-t">
-              <Link href="/login">
-                <Button className="w-full rounded-full" onClick={() => setIsMenuOpen(false)}>Login</Button>
-              </Link>
+              {user ? (
+                <div className="space-y-2">
+                  <div className="w-full text-center font-medium py-2">Hi, {user.username}</div>
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-full"
+                    onClick={() => {
+                      logoutMutation.mutate();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/login">
+                  <Button className="w-full rounded-full" onClick={() => setIsMenuOpen(false)}>Login</Button>
+                </Link>
+              )}
             </div>
           </div>
         )}

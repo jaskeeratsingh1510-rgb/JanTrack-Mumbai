@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Candidate } from "@/lib/mock-data";
+import { Candidate } from "@shared/schema";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
