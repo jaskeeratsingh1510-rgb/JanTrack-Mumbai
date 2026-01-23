@@ -94,9 +94,19 @@ export default function AdminPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Candidate>(defaultCandidate);
 
-    const { data: candidates, isLoading } = useQuery<Candidate[]>({
+    const { data: candidates, isLoading, error } = useQuery<Candidate[]>({
         queryKey: ["/api/candidates"],
     });
+
+    if (error) {
+        return (
+            <Layout>
+                <div className="container mx-auto p-8 text-red-500">
+                    Error loading candidates: {(error as Error).message}
+                </div>
+            </Layout>
+        );
+    }
 
     const createMutation = useMutation({
         mutationFn: async (newCandidate: Candidate) => {
@@ -231,6 +241,11 @@ export default function AdminPage() {
     return (
         <Layout>
             <div className="container mx-auto px-4 py-8">
+                {/* Debugging: Show error if API fails */}
+                {/* @ts-ignore */}
+                {/* using internal query debugging */}
+                {isLoading && <div className="text-blue-500">Loading Admin Data...</div>}
+
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold font-serif text-primary">Admin Dashboard</h1>
                     <Dialog open={isOpen} onOpenChange={(open) => {

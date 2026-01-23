@@ -1,4 +1,4 @@
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,41 +17,60 @@ import {
   Calendar,
   Share2,
   Flag,
-  Users,
   Loader2
 } from "lucide-react";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Candidate } from "@/lib/mock-data";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CandidateProfile() {
   const [, params] = useRoute("/candidate/:id");
+  const { toast } = useToast();
+  const [newComment, setNewComment] = useState("");
+  const [rating, setRating] = useState(5);
 
   const { data: candidate, isLoading, error } = useQuery<Candidate>({
     queryKey: [`/api/candidates/${params?.id}`],
     enabled: !!params?.id
   });
 
-  const [feedback, setFeedback] = useState([
-    { id: 1, user: "Amit S.", date: "2 days ago", text: "The coastal road progress is visible, but the traffic management near Worli is still a mess.", rating: 4 },
-    { id: 2, user: "Neha K.", date: "1 week ago", text: "Promised school digital labs are great, but teacher training is missing.", rating: 3 }
-  ]);
-  const [newComment, setNewComment] = useState("");
+  const { data: user } = useQuery({
+    queryKey: ["/api/user"],
+    retry: false
+  });
 
-  const handleAddFeedback = () => {
-    if (!newComment.trim()) return;
-    setFeedback([{
-      id: Date.now(),
-      user: "You (Verified)",
-      date: "Just now",
-      text: newComment,
-      rating: 5
-    }, ...feedback]);
-    setNewComment("");
-  };
+  const { data: feedbacks } = useQuery({
+    queryKey: [`/api/candidates/${params?.id}/feedback`],
+    enabled: !!params?.id
+  });
+
+  const feedbackMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/candidates/${params?.id}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: newComment,
+          rating,
+        })
+      });
+      if (!res.ok) throw new Error("Failed to post feedback");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/candidates/${params?.id}/feedback`] });
+      setNewComment("");
+      toast({ title: "Feedback posted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to post feedback", variant: "destructive" });
+    }
+  });
 
   if (isLoading) {
     return (
@@ -245,37 +264,58 @@ export default function CandidateProfile() {
               <Card>
                 <CardContent className="pt-6 space-y-4">
                   <h3 className="font-serif font-bold text-lg">Leave verified feedback</h3>
-                  <Textarea
-                    placeholder="Share your experience with this candidate's work..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                  />
-                  <div className="flex justify-end">
-                    <Button onClick={handleAddFeedback}>Post Feedback</Button>
-                  </div>
+                  {user ? (
+                    <>
+                      <Textarea
+                        placeholder="Share your experience with this candidate's work..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        className="mb-4"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => feedbackMutation.mutate()}
+                          disabled={feedbackMutation.isPending || !newComment.trim()}
+                        >
+                          {feedbackMutation.isPending ? "Posting..." : "Post Feedback"}
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4 bg-muted/20 rounded-lg">
+                      <p className="mb-4 text-muted-foreground">Please log in to leave feedback for this candidate.</p>
+                      <Link href="/login">
+                        <a className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">Log In</a>
+                      </Link>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
               <div className="space-y-4">
-                {feedback.map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 border rounded-xl bg-card">
-                    <Avatar>
-                      <AvatarFallback>{item.user[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-sm">{item.user}</span>
-                        <span className="text-xs text-muted-foreground">{item.date}</span>
+                {feedbacks && feedbacks.length > 0 ? (
+                  feedbacks.map((item: any) => (
+                    <div key={item._id || item.id} className="flex gap-4 p-4 border rounded-xl bg-card">
+                      <Avatar>
+                        <AvatarFallback>{item.username ? item.username[0].toUpperCase() : 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-sm">{item.username}</span>
+                          <span className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{item.message}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.text}</p>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground">No feedback yet. Be the first to review!</p>
+                )}
               </div>
             </div>
           </TabsContent>
-        </Tabs>
-      </div>
-    </Layout>
+        </Tabs >
+      </div >
+    </Layout >
   );
 }

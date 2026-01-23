@@ -1,5 +1,5 @@
 import { type User, type InsertUser } from "@shared/schema"; // Keep this for user auth if needed, but we focus on Candidates
-import { CandidateModel } from "./models";
+import { CandidateModel, UserModel, FeedbackModel } from "./models";
 
 // Use the same interface style if there was one, or adapt
 // Looking at original storage.ts, it had IStorage for User.
@@ -13,8 +13,14 @@ import { CandidateModel } from "./models";
 // We will define the interface here or import if possible (but cross-importing form client is bad).
 // So we will just trust the Mongoose model returns the right shape.
 
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
+
 export interface IStorage {
-  // User methods (keeping existing ones)
+  sessionStore: session.Store;
+  // User methods
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -25,41 +31,38 @@ export interface IStorage {
   createCandidate(candidate: any): Promise<any>;
   updateCandidate(id: string, candidate: any): Promise<any>;
   deleteCandidate(id: string): Promise<void>;
+
+  // Feedback methods
+  createFeedback(feedback: any): Promise<any>;
+  getFeedbacksForCandidate(candidateId: string): Promise<any[]>;
 }
 
 export class MongoStorage implements IStorage {
-  // We can treat User as dummy for now if we don't have a structured DB for it yet or migrate it too.
-  // The user only asked for Candidate data in MongoDB.
-  // But if existing app relies on MemStorage for users, we might break auth if we don't handle it.
-  // For now, let's keep Users in memory (mixed mode) or just implement dummy/partial if not asked.
-  // actually, let's assume we want to move fully to Mongo eventually, but for this task, the user emphasized Candidate data.
-  // However, I must implement the interface.
-  // Let's implement an in-memory user storage inside this class for now to avoid breaking auth,
-  // OR just throw not implemented if auth isn't used yet (likely is).
-  // Safest: Hybrid or User Model.
-  // Given time constraints, I'll use in-memory map for users just like MemStorage, but Mongo for Candidates.
+  // Removing in-memory user storage, implementing real Mongo storage for users
 
-  private users: Map<string, User>; // Keep legacy user handling for safety
+  sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000,
+    });
   }
-
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const user = await UserModel.findById(id);
+    if (!user) return undefined;
+    return { id: user._id.toString(), username: user.username, password: user.password };
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const user = await UserModel.findOne({ username });
+    if (!user) return undefined;
+    return { id: user._id.toString(), username: user.username, password: user.password };
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = (this.users.size + 1).toString(); // simple ID gen
-    const user: User = { ...insertUser, id }; // Add missing fields if any
-    this.users.set(id, user);
-    return user;
+    const user = new UserModel(insertUser);
+    await user.save();
+    return { id: user._id.toString(), username: user.username, password: user.password };
   }
 
   async getCandidates() {
@@ -81,6 +84,15 @@ export class MongoStorage implements IStorage {
 
   async deleteCandidate(id: string) {
     await CandidateModel.findOneAndDelete({ id });
+  }
+
+  async createFeedback(feedbackData: any) {
+    const feedback = new FeedbackModel(feedbackData);
+    return await feedback.save();
+  }
+
+  async getFeedbacksForCandidate(candidateId: string) {
+    return await FeedbackModel.find({ candidateId }).sort({ createdAt: -1 });
   }
 }
 

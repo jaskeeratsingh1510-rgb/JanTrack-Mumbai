@@ -64,5 +64,34 @@ export async function registerRoutes(
     }
   });
 
+  // Feedback routes
+  app.post("/api/candidates/:id/feedback", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const feedback = await storage.createFeedback({
+        ...req.body,
+        candidateId: req.params.id,
+        userId: (req.user as any).id,
+        username: (req.user as any).username,
+        createdAt: new Date()
+      });
+      res.status(201).json(feedback);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create feedback" });
+    }
+  });
+
+  app.get("/api/candidates/:id/feedback", async (req, res) => {
+    try {
+      const feedbacks = await storage.getFeedbacksForCandidate(req.params.id);
+      res.json(feedbacks);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch feedbacks" });
+    }
+  });
+
   return httpServer;
 }
