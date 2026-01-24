@@ -40,6 +40,7 @@ function Router() {
           <Route path="/candidate/:id" component={CandidateProfile} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/report-issue" component={ReportIssue} />
+          <Route path="/admin/login" component={AuthPage} />
           <Route path="/login" component={AuthPage} />
           <Route path="/signup" component={AuthPage} />
           <Route path="/admin" component={AdminPage} />

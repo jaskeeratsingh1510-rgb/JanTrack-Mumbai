@@ -56,19 +56,19 @@ export class MongoStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const user = await UserModel.findById(id);
     if (!user) return undefined;
-    return { id: user._id.toString(), username: user.username, password: user.password };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role };
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const user = await UserModel.findOne({ username });
     if (!user) return undefined;
-    return { id: user._id.toString(), username: user.username, password: user.password };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role };
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const user = new UserModel(insertUser);
     await user.save();
-    return { id: user._id.toString(), username: user.username, password: user.password };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role };
   }
 
   async getCandidates() {

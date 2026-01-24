@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useLocation } from "wouter";
 import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
@@ -10,13 +11,15 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
   const [location, setLocation] = useLocation();
-  const isLogin = location === "/login";
+  const isLogin = location === "/login" || location === "/admin/login";
+  const isAdminLogin = location === "/admin/login";
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    name: ""
+    name: "",
+    role: "user"
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,14 +33,27 @@ export default function AuthPage() {
       });
 
       if (res.ok) {
+        const userData = await res.json();
+
+        if (isAdminLogin && userData.role !== 'admin') {
+          toast({
+            title: "Access Denied",
+            description: "You do not have admin privileges.",
+            variant: "destructive"
+          });
+          // Logout immediately if not authorized
+          await fetch("/api/logout", { method: "POST" });
+          return;
+        }
+
         toast({
           title: "Success",
           description: isLogin ? "Logged in successfully" : "Account created successfully",
         });
-        setLocation("/");
-        // Force reload to update auth state across app since we don't have a global auth context yet
-        // In a real app we would use a context provider
-        window.location.href = "/";
+
+        const targetPath = userData.role === 'admin' ? "/admin" : "/";
+        setLocation(targetPath);
+        window.location.href = targetPath;
       } else {
         const data = await res.text();
         toast({
@@ -64,7 +80,9 @@ export default function AuthPage() {
               <ShieldCheck size={32} />
             </div>
             <CardTitle className="text-2xl font-serif font-bold">
-              {isLogin ? "Welcome Back" : "Create Account"}
+              {isLogin
+                ? (isAdminLogin ? "Admin Login" : "Welcome Back")
+                : "Create Account"}
             </CardTitle>
             <CardDescription>
               {isLogin
@@ -74,6 +92,21 @@ export default function AuthPage() {
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <Label htmlFor="role">{!isLogin ? "Register As" : "Login As"}</Label>
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User / Voter</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
@@ -107,7 +140,7 @@ export default function AuthPage() {
                 />
               </div>
               <Button type="submit" className="w-full font-bold h-11 mt-2">
-                {isLogin ? "Sign In" : "Register Now"}
+                {isLogin ? (isAdminLogin ? "Login as Admin" : "Sign In") : "Register Now"}
               </Button>
             </form>
 
@@ -122,7 +155,7 @@ export default function AuthPage() {
               ) : (
                 <p>
                   Already have an account?{" "}
-                  <Link href="/login">
+                  <Link href={isAdminLogin ? "/admin/login" : "/login"}>
                     <a className="text-primary font-bold hover:underline">Log In</a>
                   </Link>
                 </p>

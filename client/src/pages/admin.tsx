@@ -108,7 +108,7 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (!isUserLoading && !user) {
-            window.location.href = "/login";
+            window.location.href = "/admin/login";
         }
     }, [user, isUserLoading]);
 
