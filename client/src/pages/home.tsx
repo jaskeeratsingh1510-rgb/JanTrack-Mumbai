@@ -101,6 +101,17 @@ export default function Home() {
     queryKey: ["/api/candidates"],
   });
 
+  // Sort candidates by Promise Fulfillment Score (highest first)
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    const scoreA = a.promises.length > 0
+      ? a.promises.reduce((acc, p) => acc + (p.completionPercentage || 0), 0) / a.promises.length
+      : 0;
+    const scoreB = b.promises.length > 0
+      ? b.promises.reduce((acc, p) => acc + (p.completionPercentage || 0), 0) / b.promises.length
+      : 0;
+    return scoreB - scoreA;
+  });
+
   const { scrollY } = useScroll();
   const yBackend = useTransform(scrollY, [0, 500], [0, 200]);
 
@@ -241,7 +252,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {candidates.slice(0, 3).map((candidate) => (
+            {sortedCandidates.slice(0, 3).map((candidate) => (
               <CandidateCard key={candidate.id} candidate={candidate} />
             ))}
           </div>

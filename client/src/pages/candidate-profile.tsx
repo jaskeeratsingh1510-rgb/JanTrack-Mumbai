@@ -92,7 +92,9 @@ export default function CandidateProfile() {
   const notStarted = candidate.promises.filter(p => p.status === 'not-started').length;
   const broken = candidate.promises.filter(p => p.status === 'broken').length;
   const total = candidate.promises.length;
-  const score = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const score = total > 0
+    ? Math.round(candidate.promises.reduce((acc, p) => acc + (p.completionPercentage || 0), 0) / total)
+    : 0;
 
   return (
     <Layout>

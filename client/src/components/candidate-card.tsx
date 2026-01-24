@@ -8,9 +8,10 @@ import { Progress } from "@/components/ui/progress";
 
 export function CandidateCard({ candidate }: { candidate: Candidate }) {
   // Calculate average promise completion
-  const completedPromises = candidate.promises.filter(p => p.status === 'completed').length;
   const totalPromises = candidate.promises.length;
-  const progress = Math.round((completedPromises / totalPromises) * 100);
+  const progress = totalPromises > 0
+    ? Math.round(candidate.promises.reduce((acc, p) => acc + (p.completionPercentage || 0), 0) / totalPromises)
+    : 0;
 
   return (
     <Card className="group overflow-hidden border-white/20 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
