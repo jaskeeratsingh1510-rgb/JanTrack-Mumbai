@@ -581,13 +581,13 @@ export default function WardMap() {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-end">
                     <div>
-                      <div className="text-2xl font-bold">₹59,791.33 Cr</div>
+                      <div className="text-2xl font-bold">₹74,427 Cr</div>
                       <div className="text-xs text-muted-foreground">Total Budget</div>
                     </div>
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Optimal Utilization</Badge>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary w-[75%]"></div>
+                    <div className="h-full bg-primary w-[44%]"></div>
                   </div>
                 </CardContent>
               </Card>
