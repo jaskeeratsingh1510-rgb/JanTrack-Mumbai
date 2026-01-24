@@ -11,9 +11,31 @@ export default function Dashboard() {
     queryKey: ["/api/candidates"],
   });
 
-  // Aggregate data for the chart
-  const constituencyData = candidates?.map(c => ({
-    name: c.constituency,
+  // Aggregate data for the chart by Ward
+  const wardAggregation = candidates?.reduce((acc, c) => {
+    const ward = c.ward;
+    if (!acc[ward]) {
+      acc[ward] = {
+        name: ward,
+        allocated: 0,
+        utilized: 0,
+        candidates: [] as string[]
+      };
+    }
+    acc[ward].allocated += c.funds.allocated;
+    acc[ward].utilized += c.funds.utilized;
+    acc[ward].candidates.push(c.name);
+    return acc;
+  }, {} as Record<string, { name: string; allocated: number; utilized: number; candidates: string[] }>) || {};
+
+  const wardData = Object.values(wardAggregation).map(w => ({
+    ...w,
+    candidate: w.candidates.join(", ") // Join multiple candidate names
+  })).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+  // Data for the grid cards (individual candidates, but with Ward information)
+  const candidatesData = candidates?.map(c => ({
+    name: c.ward,
     allocated: c.funds.allocated,
     utilized: c.funds.utilized,
     candidate: c.name
@@ -25,8 +47,8 @@ export default function Dashboard() {
     <Layout>
       <div className="bg-muted/30 border-b">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-serif font-bold text-primary mb-2">Constituency Dashboard</h1>
-          <p className="text-muted-foreground">Compare fund allocation and utilization across different regions.</p>
+          <h1 className="text-3xl font-serif font-bold text-primary mb-2">Ward Dashboard</h1>
+          <p className="text-muted-foreground">Compare fund allocation and utilization across different wards.</p>
         </div>
       </div>
 
@@ -62,13 +84,13 @@ export default function Dashboard() {
         {/* Main Chart */}
         <Card className="shadow-lg border-primary/10">
           <CardHeader>
-            <CardTitle className="font-serif">Fund Utilization by Constituency</CardTitle>
+            <CardTitle className="font-serif">Fund Utilization by Ward</CardTitle>
             <CardDescription>Comparing allocated budget vs. actual spending</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={constituencyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={wardData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                   <XAxis
                     dataKey="name"
@@ -98,7 +120,7 @@ export default function Dashboard() {
 
         {/* Detailed Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {constituencyData.map((data, i) => (
+          {candidatesData.map((data, i) => (
             <Card key={i} className="hover:border-primary/30 transition-colors">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
