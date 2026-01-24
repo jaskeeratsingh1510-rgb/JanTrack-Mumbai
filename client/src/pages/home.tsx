@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, TrendingUp, Users } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { motion, useSpring, useTransform, useInView } from "framer-motion";
+import { motion, useSpring, useTransform, useInView, useScroll } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 // Reuse Candidate Interface
@@ -46,10 +46,63 @@ function Counter({ value, prefix = "", suffix = "" }: { value: number, prefix?: 
   return <span ref={ref} className="tabular-nums">{prefix}<motion.span>{displayValue}</motion.span>{suffix}</span>;
 }
 
+const MaskedReveal = ({ text, delay = 0 }: { text: string, delay?: number }) => {
+  const words = text.split(" ");
+
+  const container = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: delay }
+    }
+  };
+
+  const child = {
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100,
+      }
+    },
+    hidden: {
+      y: "110%",
+      opacity: 0,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100,
+      }
+    }
+  } as const;
+
+  return (
+    <motion.span
+      style={{ display: "inline-block", overflow: "hidden" }}
+      variants={container}
+      initial="hidden"
+      animate="visible"
+    >
+      {words.map((word, index) => (
+        <span key={index} style={{ display: "inline-block", overflow: "hidden" }} className="mr-2 last:mr-0 align-bottom">
+          <motion.span variants={child} style={{ display: "inline-block" }}>
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </motion.span>
+  );
+};
+
 export default function Home() {
   const { data: candidates = [] } = useQuery<Candidate[]>({
     queryKey: ["/api/candidates"],
   });
+
+  const { scrollY } = useScroll();
+  const yBackend = useTransform(scrollY, [0, 500], [0, 200]);
 
   return (
     <Layout>
@@ -58,6 +111,7 @@ export default function Home() {
         {/* Background Image with Overlay */}
         <motion.div
           className="absolute inset-0 z-0"
+          style={{ y: yBackend }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
@@ -89,7 +143,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-white leading-tight">
-              Know Your Leader.<br />
+              <MaskedReveal text="Know Your Leader." delay={2.5} /><br />
               <span className="text-amber-400">Vote Informed.</span>
             </h1>
 
@@ -132,7 +186,7 @@ export default function Home() {
             </div>
             <div className="text-center p-4">
               <div className="text-3xl font-bold text-slate-900 font-serif">
-                <Counter value={450} prefix="₹" suffix="Cr" />
+                <Counter value={59791.33} prefix="₹" suffix="Cr" />
               </div>
               <div className="text-sm text-slate-500 mt-1">Funds Monitored</div>
             </div>
