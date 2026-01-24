@@ -4,7 +4,7 @@ import { Candidate } from "@shared/schema";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMemo, useState, useEffect } from "react";
 
@@ -79,32 +79,7 @@ export default function Dashboard() {
 
       <div className="container mx-auto px-4 py-8 space-y-8">
 
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-lg border shadow-sm">
-          <div className="flex gap-4 w-full sm:w-auto">
-            <Select defaultValue="2025-2026">
-              <SelectTrigger className="w-[180px] bg-background">
-                <SelectValue placeholder="Financial Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2025-2026">FY 2025-2026</SelectItem>
-                <SelectItem value="2024-2025">FY 2024-2025</SelectItem>
-                <SelectItem value="2023-2024">FY 2023-2024</SelectItem>
-              </SelectContent>
-            </Select>
 
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[180px] bg-background">
-                <SelectValue placeholder="Region" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                <SelectItem value="north">North Zone</SelectItem>
-                <SelectItem value="south">South Zone</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
         {/* Main Chart */}
         <Card className="shadow-lg border-primary/10">
