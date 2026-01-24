@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Camera, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
@@ -14,6 +15,7 @@ import { queryClient } from "@/lib/queryClient";
 export default function ReportIssue() {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
+  const [selectedIssue, setSelectedIssue] = useState<any>(null);
   const [issueType, setIssueType] = useState("");
   const [constituency, setConstituency] = useState("");
   const [title, setTitle] = useState("");
@@ -184,7 +186,11 @@ export default function ReportIssue() {
               <h3 className="text-2xl font-serif font-bold text-primary mb-4">Recent Verified Reports</h3>
               <div className="grid gap-4">
                 {issues?.map((issue: any) => (
-                  <Card key={issue._id} className="flex flex-col md:flex-row overflow-hidden">
+                  <Card
+                    key={issue._id}
+                    className="flex flex-col md:flex-row overflow-hidden cursor-pointer hover:shadow-md transition-all"
+                    onClick={() => setSelectedIssue(issue)}
+                  >
                     <div className="w-full md:w-48 h-48 md:h-auto shrink-0 bg-muted">
                       <img src={issue.imageUrl} alt={issue.title} className="w-full h-full object-cover" />
                     </div>
@@ -242,6 +248,65 @@ export default function ReportIssue() {
           </div>
         </div>
       </div>
+
+      <Dialog open={!!selectedIssue} onOpenChange={(open) => !open && setSelectedIssue(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-serif font-bold">{selectedIssue?.title}</DialogTitle>
+            <DialogDescription>
+              Reported on {new Date(selectedIssue?.createdAt || Date.now()).toLocaleDateString()}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 mt-4">
+            <div className="aspect-video w-full bg-muted rounded-lg overflow-hidden">
+              <img
+                src={selectedIssue?.imageUrl}
+                alt={selectedIssue?.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center bg-secondary/10 text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium border border-secondary/20">
+                <MapPin size={14} className="mr-1" /> {selectedIssue?.location}
+              </span>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${selectedIssue?.isVerified
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+                }`}>
+                {selectedIssue?.isVerified ? (
+                  <><ShieldCheck size={14} className="mr-1" /> Verified Report</>
+                ) : (
+                  "Pending Verification"
+                )}
+              </span>
+              <span className="capitalize inline-flex items-center bg-muted px-3 py-1 rounded-full text-sm font-medium border">
+                {selectedIssue?.status?.replace('_', ' ') || "Reported"}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="font-bold text-lg">Description</h3>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {selectedIssue?.description}
+              </p>
+            </div>
+
+            {selectedIssue?.isVerified && (
+              <div className="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                <h4 className="font-bold flex items-center gap-2 mb-2 text-primary">
+                  <ShieldCheck size={18} />
+                  Official Response
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  This report has been verified by our monitoring team. It has been forwarded to the {selectedIssue?.location} municipal ward office for immediate action.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
