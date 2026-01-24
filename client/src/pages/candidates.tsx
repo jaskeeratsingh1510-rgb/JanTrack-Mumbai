@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, ArrowLeftRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Link } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 
 // Define Candidate Type (matching the one in admin.tsx/API)
@@ -31,7 +31,12 @@ export interface Candidate {
 }
 
 export default function CandidatesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [location] = useLocation();
+  const searchString = useSearch();
+  const searchParams = new URLSearchParams(searchString);
+  const initialSearch = searchParams.get("q") || "";
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [wardFilter, setWardFilter] = useState("all");
 
   const { data: candidates = [], isLoading, error } = useQuery<Candidate[]>({
