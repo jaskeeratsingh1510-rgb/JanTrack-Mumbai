@@ -38,7 +38,7 @@ export default function AuthPage() {
         const res = await fetch("/api/auth/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email })
+          body: JSON.stringify({ username: formData.username })
         });
 
         if (res.ok) {
@@ -159,7 +159,7 @@ export default function AuthPage() {
                 />
               </div>
 
-              {isAdmin && (
+              {isAdminSignup && (
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
@@ -194,7 +194,25 @@ export default function AuthPage() {
                     value={formData.otp}
                     onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
                   />
-                  <p className="text-xs text-muted-foreground">OTP sent to your registered email (Mock: Check console)</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">OTP sent (Mock: Check console)</p>
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-xs p-0 h-auto"
+                      onClick={async () => {
+                        const res = await fetch("/api/auth/send-otp", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ username: formData.username })
+                        });
+                        if (res.ok) toast({ title: "OTP Resent", description: "Check your email again." });
+                        else toast({ title: "Failed", description: "Could not resend OTP", variant: "destructive" });
+                      }}
+                    >
+                      Resend OTP
+                    </Button>
+                  </div>
                 </div>
               )}
 

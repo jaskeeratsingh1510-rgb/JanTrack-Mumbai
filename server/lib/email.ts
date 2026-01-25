@@ -1,50 +1,46 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-// Simple interface for sending emails
 export interface EmailService {
     sendEmail(to: string, subject: string, html: string): Promise<boolean>;
 }
 
-class NodemailerService implements EmailService {
-    private transporter: nodemailer.Transporter | null = null;
+class ResendService implements EmailService {
+    private resend: Resend;
 
     constructor() {
-        if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-            this.transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST,
-                port: parseInt(process.env.SMTP_PORT || "587"),
-                secure: false, // true for 465, false for other ports
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASS,
-                },
-            });
-            console.log("Email service configured with SMTP");
-        } else {
-            console.log("SMTP credentials missing. Email service will log to console only.");
+        if (!process.env.RESEND_API_KEY) {
+            console.warn("RESEND_API_KEY is missing. Email service will run in MOCK mode.");
         }
+        this.resend = new Resend(process.env.RESEND_API_KEY || "re_mock_key");
     }
 
     async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-        if (!this.transporter) {
+        if (!process.env.RESEND_API_KEY) {
             console.log(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
             console.log(`[MOCK EMAIL] Body: ${html}`);
             return true;
         }
 
         try {
-            await this.transporter.sendMail({
-                from: `"JanTrack Admin" <${process.env.SMTP_USER}>`,
-                to,
-                subject,
-                html,
+            const { data, error } = await this.resend.emails.send({
+                from: "JanTrack Admin <onboarding@resend.dev>", // Default Resend testing domain
+                to: [to], // Resend free tier only allows sending to the verified email
+                subject: subject,
+                html: html,
             });
+
+            if (error) {
+                console.error("Resend API Error:", error);
+                return false;
+            }
+
+            console.log("Email sent successfully via Resend:", data?.id);
             return true;
         } catch (error) {
-            console.error("Failed to send email:", error);
+            console.error("Failed to send email via Resend:", error);
             return false;
         }
     }
 }
 
-export const emailService = new NodemailerService();
+export const emailService = new ResendService();

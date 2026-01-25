@@ -13,22 +13,24 @@ export async function registerRoutes(
 
   // OTP Endpoint
   app.post("/api/auth/send-otp", async (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).send("Email is required");
+    const { username } = req.body;
+    if (!username) return res.status(400).send("Username is required");
 
-    const user = await storage.getUserByEmail(email);
+    const user = await storage.getUserByUsername(username);
 
     if (!user || user.role !== 'admin') {
-      return res.status(403).send("Access denied or email not found");
+      return res.status(403).send("Access denied or user not found");
+    }
+
+    if (!user.email) {
+      return res.status(400).send("No email registered for this admin user");
     }
 
     const otp = randomInt(100000, 999999).toString();
-    // VerifyOtp uses username (unique ID), but we send to email.
-    // Store OTP against the username which is the reliable unique ID.
     await storage.saveOtp(user.username, otp);
 
     const emailSent = await emailService.sendEmail(
-      email,
+      user.email,
       "JanTrack Admin Login OTP",
       `<p>Your OTP for Admin Login is: <strong>${otp}</strong></p><p>This code expires in 5 minutes.</p>`
     );
