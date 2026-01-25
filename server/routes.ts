@@ -262,5 +262,24 @@ export async function registerRoutes(
     }
   });
 
+  // Generic Upload Route
+  app.post("/api/upload", upload.single('image'), async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      const imageUrl = await uploadToCloudinary(req.file);
+      res.json({ url: imageUrl });
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      res.status(500).json({ message: "Failed to upload image" });
+    }
+  });
+
   return httpServer;
 }

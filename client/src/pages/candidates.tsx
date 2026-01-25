@@ -9,26 +9,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 
 // Define Candidate Type (matching the one in admin.tsx/API)
-export interface Candidate {
-  id: string;
-  name: string;
-  party: string;
-  constituency: string;
-  ward: string;
-  age: number;
-  education: string;
-  image: string;
-  criminalCases: number;
-  assets: string;
-  attendance: number;
-  promises: any[];
-  funds: {
-    allocated: number;
-    utilized: number;
-    projects: any[];
-  };
-  bio: string;
-}
+import { Candidate } from "@shared/schema";
 
 export default function CandidatesPage() {
   const [location] = useLocation();
@@ -54,7 +35,7 @@ export default function CandidatesPage() {
     return matchesSearch && matchesWard;
   });
 
-  const uniqueWards = Array.from(new Set(candidates.map(c => c.ward))).sort((a, b) => {
+  const uniqueWards = Array.from(new Set(candidates.map(c => c.ward))).filter(w => w && w.trim() !== "").sort((a, b) => {
     const numA = parseInt(a.replace(/\D/g, '')) || 0;
     const numB = parseInt(b.replace(/\D/g, '')) || 0;
     return numA - numB;

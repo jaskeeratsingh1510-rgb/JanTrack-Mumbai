@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useTheme } from "@/hooks/use-theme";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { User } from "@shared/schema";
 import {
@@ -19,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { effectiveTheme } = useTheme();
   const { data: user } = useQuery<User>({ queryKey: ["/api/user"], retry: false });
   const { toast } = useToast();
 
@@ -40,8 +42,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/">
             <a className="flex items-center gap-2 group cursor-pointer">
-              <div className="bg-primary text-primary-foreground p-1.5 rounded-md group-hover:bg-primary/90 transition-colors">
-                <ShieldCheck size={24} strokeWidth={2.5} />
+              <div className="p-1 rounded-md transition-colors">
+                <img src={effectiveTheme === "dark" ? "/logo-dark.png" : "/logo.png"} alt="JanTrack Logo" className="h-20 w-20 object-contain rounded-md" />
               </div>
               <span className="text-xl font-serif font-bold tracking-tight text-primary">JanTrack Mumbai</span>
             </a>
@@ -157,8 +159,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto px-4 grid md:grid-cols-4 gap-12">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <div className="bg-white/10 dark:bg-slate-100 p-2 rounded-lg">
-                <ShieldCheck className="text-white dark:text-primary" size={24} />
+              <div className="p-2 rounded-lg">
+                <img src={effectiveTheme === "dark" ? "/logo.png" : "/logo-dark.png"} alt="JanTrack Logo" className="h-20 w-auto object-contain rounded-md" />
               </div>
               <span className="text-2xl font-serif font-bold text-white dark:text-slate-900 tracking-tight">JanTrack</span>
             </div>

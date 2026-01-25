@@ -41,6 +41,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Candidate } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { getCandidateImage } from "@/lib/candidate-utils";
 
 export default function CandidateProfile() {
   const [, params] = useRoute("/candidate/:id");
@@ -156,8 +157,9 @@ export default function CandidateProfile() {
           <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-br from-primary to-secondary rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+
               <img
-                src={candidate.image}
+                src={getCandidateImage(candidate)}
                 alt={candidate.name}
                 className="relative w-48 h-48 rounded-xl object-cover shadow-xl border-4 border-background"
               />

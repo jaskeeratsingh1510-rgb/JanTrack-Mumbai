@@ -27,7 +27,8 @@ import {
 } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash, Save, CheckCircle, Trash2 } from "lucide-react";
+import { Plus, Trash, Save, CheckCircle, Trash2, Loader2 } from "lucide-react";
+import { getCandidateImage } from "@/lib/candidate-utils";
 
 // Types
 interface PromiseItem {
@@ -76,7 +77,7 @@ const defaultCandidate: Candidate = {
     gender: "",
     age: 0,
     education: "",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop",
+    image: "",
     criminalCases: 0,
     assets: "",
     attendance: 0,
@@ -95,6 +96,8 @@ export default function AdminPage() {
     const [isOpen, setIsOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Candidate>(defaultCandidate);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const { data: candidates, isLoading, error } = useQuery<Candidate[]>({
         queryKey: ["/api/candidates"],
@@ -188,27 +191,69 @@ export default function AdminPage() {
         e.preventDefault();
 
         // Manual Validation
-        if (!formData.id || !formData.name || !formData.party || !formData.constituency) {
-            toast({
-                title: "Validation Error",
-                description: "Please fill in ID, Name, Party, and Constituency in the Overview tab.",
-                variant: "destructive"
-            });
-            return;
-        }
+        const submitData = async () => {
+            // Basic manual validation
+            if (!formData.id || !formData.name || !formData.party || !formData.constituency) {
+                toast({
+                    title: "Validation Error",
+                    description: "Please fill in ID, Name, Party, and Constituency in the Overview tab.",
+                    variant: "destructive"
+                });
+                return;
+            }
 
-        console.log("Submitting form data:", formData);
+            let finalImage = formData.image;
 
-        if (editingId) {
-            updateMutation.mutate(formData);
-        } else {
-            createMutation.mutate(formData);
-        }
+            // Handle Image Upload if file exists
+            if (imageFile) {
+                try {
+                    setIsUploading(true);
+                    const uploadData = new FormData();
+                    uploadData.append('image', imageFile);
+
+                    const res = await fetch("/api/upload", {
+                        method: "POST",
+                        body: uploadData,
+                    });
+
+                    if (!res.ok) throw new Error("Image upload failed");
+
+                    const data = await res.json();
+                    finalImage = data.url;
+                } catch (error) {
+                    setIsUploading(false);
+                    toast({
+                        title: "Upload Failed",
+                        description: "Failed to upload image. Please try again.",
+                        variant: "destructive"
+                    });
+                    return;
+                } finally {
+                    setIsUploading(false);
+                }
+            } else if (!finalImage && formData.gender) {
+                // Fallback to default if no image and no file, but gender is selected
+                if (formData.gender === "Male") finalImage = "/assets/candidate_male.png";
+                if (formData.gender === "Female") finalImage = "/assets/candidate_female.png";
+            }
+
+            const payload = { ...formData, image: finalImage };
+            console.log("Submitting form data:", payload);
+
+            if (editingId) {
+                updateMutation.mutate(payload);
+            } else {
+                createMutation.mutate(payload);
+            }
+        };
+
+        submitData();
     };
 
     const resetForm = () => {
         setFormData(defaultCandidate);
         setEditingId(null);
+        setImageFile(null);
     };
 
     const handleEdit = (candidate: Candidate) => {
@@ -342,11 +387,29 @@ export default function AdminPage() {
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <label className="text-sm font-medium">Image URL</label>
-                                                            <Input
-                                                                value={formData.image}
-                                                                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                                            />
+                                                            <label className="text-sm font-medium">Image</label>
+                                                            <div className="border-2 border-dashed rounded-lg p-4 text-center hover:bg-muted/50 transition-colors relative flex flex-col items-center justify-center min-h-[100px]">
+                                                                <Input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                                                    onChange={(e) => {
+                                                                        const file = e.target.files?.[0];
+                                                                        if (file) setImageFile(file);
+                                                                    }}
+                                                                />
+                                                                {imageFile ? (
+                                                                    <div className="flex flex-col items-center text-primary z-0">
+                                                                        <CheckCircle className="h-8 w-8 mb-2" />
+                                                                        <p className="text-sm font-medium break-all px-2">{imageFile.name}</p>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center z-0 group">
+                                                                        <img src={getCandidateImage(formData)} alt="Preview" className="h-16 w-16 object-cover rounded-md mb-2 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                                        <p className="text-xs text-muted-foreground">Click to change</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
@@ -375,7 +438,22 @@ export default function AdminPage() {
                                                             <select
                                                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                                                 value={formData.gender || ""}
-                                                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                                                onChange={(e) => {
+                                                                    const gender = e.target.value;
+                                                                    const maleImage = "/assets/candidate_male.png";
+                                                                    const femaleImage = "/assets/candidate_female.png";
+                                                                    const defaultImage = "/assets/candidate_female.png"; // Current default in schema
+
+                                                                    let newImage = formData.image;
+                                                                    const isDefaultOrEmpty = !formData.image || formData.image === defaultImage || formData.image === maleImage || formData.image === femaleImage;
+
+                                                                    if (isDefaultOrEmpty) {
+                                                                        if (gender === "Male") newImage = maleImage;
+                                                                        if (gender === "Female") newImage = femaleImage;
+                                                                    }
+
+                                                                    setFormData({ ...formData, gender, image: newImage });
+                                                                }}
                                                             >
                                                                 <option value="">Select Gender</option>
                                                                 <option value="Male">Male</option>
@@ -587,8 +665,8 @@ export default function AdminPage() {
                                         </form>
                                     </ScrollArea>
                                     <div className="p-6 border-t bg-background">
-                                        <Button type="submit" form="candidate-form" className="w-full gap-2" disabled={createMutation.isPending || updateMutation.isPending}>
-                                            <Save size={16} />
+                                        <Button type="submit" form="candidate-form" className="w-full gap-2" disabled={createMutation.isPending || updateMutation.isPending || isUploading}>
+                                            {isUploading ? <Loader2 className="animate-spin h-4 w-4" /> : <Save size={16} />}
                                             {editingId ? "Update Candidate" : "Create Candidate"}
                                         </Button>
                                     </div>

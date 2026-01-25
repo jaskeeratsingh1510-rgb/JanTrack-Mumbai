@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, AlertCircle, Briefcase, GraduationCap, ArrowLeftRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
+import { getCandidateImage } from "@/lib/candidate-utils";
+
 export function CandidateCard({ candidate }: { candidate: Candidate }) {
   // Calculate average promise completion
   const totalPromises = candidate.promises.length;
@@ -74,7 +76,7 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
       <div className="px-6 -mt-12 relative z-10">
         <div className="relative">
           <img
-            src={candidate.image}
+            src={getCandidateImage(candidate)}
             alt={candidate.name}
             className="w-24 h-24 rounded-xl object-cover border-4 border-background shadow-md group-hover:scale-105 transition-transform duration-300"
           />

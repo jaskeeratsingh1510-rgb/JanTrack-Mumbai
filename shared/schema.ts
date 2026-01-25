@@ -43,7 +43,6 @@ export interface Candidate {
   party: string;
   constituency: string;
   ward: string;
-  ward: string;
   gender: string;
   age: number;
   education: string;
@@ -60,9 +59,20 @@ export interface Candidate {
   bio: string;
 }
 
+
 // Zod schema for client-side validation of report creation
 export const insertReportSchema = z.object({
   reason: z.string().min(1, "Reason is required"),
   description: z.string().optional(),
 });
 
+export const insertIssueSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  location: z.string().optional(),
+});
+
+export const insertFeedbackSchema = z.object({
+  message: z.string().min(1, "Message is required"),
+  rating: z.coerce.number().min(1).max(5).optional(),
+});

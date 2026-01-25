@@ -42,7 +42,6 @@ export interface IStorage {
   getIssues(): Promise<any[]>;
   verifyIssue(id: string): Promise<any>;
   deleteIssue(id: string): Promise<void>;
-  deleteIssue(id: string): Promise<void>;
 
   // Report methods
   createReport(report: any): Promise<any>;
@@ -89,25 +88,25 @@ export class MongoStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const user = await UserModel.findById(id);
     if (!user) return undefined;
-    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email ?? null };
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const user = await UserModel.findOne({ username });
     if (!user) return undefined;
-    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email ?? null };
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const user = await UserModel.findOne({ email });
     if (!user) return undefined;
-    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email ?? null };
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const user = new UserModel(insertUser);
     await user.save();
-    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email };
+    return { id: user._id.toString(), username: user.username, password: user.password, role: user.role, email: user.email ?? null };
   }
 
   async getCandidates() {

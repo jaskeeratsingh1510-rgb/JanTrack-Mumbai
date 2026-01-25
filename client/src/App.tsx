@@ -3,6 +3,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ErrorBoundary } from "@/components/error-boundary";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import CandidateProfile from "@/pages/candidate-profile";
@@ -57,10 +59,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <ErrorBoundary>
+        <TooltipProvider>
+          <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+            <Toaster />
+            <Router />
+          </ThemeProvider>
+        </TooltipProvider>
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }

@@ -8,6 +8,7 @@ import { Link, useLocation } from "wouter";
 import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function AuthPage() {
   const [location, setLocation] = useLocation();
@@ -16,6 +17,7 @@ export default function AuthPage() {
   const isAdminSignup = location === "/admin/signup";
   const isAdmin = isAdminLogin || isAdminSignup;
   const { toast } = useToast();
+  const { effectiveTheme } = useTheme();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -99,8 +101,12 @@ export default function AuthPage() {
       <div className="min-h-[80vh] flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-xl border-primary/10">
           <CardHeader className="text-center space-y-2">
-            <div className="mx-auto bg-primary text-primary-foreground p-3 rounded-xl w-fit mb-2">
-              <ShieldCheck size={32} />
+            <div className="mx-auto p-3 rounded-xl w-fit mb-2">
+              <img
+                src={effectiveTheme === "dark" ? "/logo-dark.png" : "/logo.png"}
+                alt="Application Logo"
+                className="w-32 h-32 object-contain"
+              />
             </div>
             <CardTitle className="text-2xl font-serif font-bold">
               {isLogin
