@@ -1,9 +1,10 @@
 import { Layout } from "@/components/layout";
+import { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Map as MapIcon, Info, Layers, Maximize2 } from "lucide-react";
 
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -446,6 +447,50 @@ const WARD_DATA = [
 ];
 
 
+// Custom Fullscreen Control Component
+function FullScreenControl() {
+  const map = useMap();
+
+  useEffect(() => {
+    const FullScreen = L.Control.extend({
+      onAdd: function () {
+        const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
+        btn.style.backgroundColor = 'white';
+        btn.style.width = '30px';
+        btn.style.height = '30px';
+        btn.style.display = 'flex';
+        btn.style.alignItems = 'center';
+        btn.style.justifyContent = 'center';
+        btn.style.cursor = 'pointer';
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>`;
+        btn.title = "Toggle Fullscreen";
+
+        btn.onclick = function () {
+          const container = map.getContainer();
+          if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(err => {
+              console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+          } else {
+            document.exitFullscreen();
+          }
+        };
+
+        return btn;
+      }
+    });
+
+    const fullScreenControl = new FullScreen({ position: 'topright' });
+    map.addControl(fullScreenControl);
+
+    return () => {
+      map.removeControl(fullScreenControl);
+    };
+  }, [map]);
+
+  return null;
+}
+
 export default function WardMap() {
   return (
     <Layout>
@@ -541,10 +586,11 @@ export default function WardMap() {
               <MapContainer
                 center={[19.0760, 72.8777]} // Centered on Mumbai
                 zoom={11}
-                scrollWheelZoom={false}
+                scrollWheelZoom={true}
                 className="h-full w-full"
                 style={{ height: "100%", width: "100%", zIndex: 0 }}
               >
+                <FullScreenControl />
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
