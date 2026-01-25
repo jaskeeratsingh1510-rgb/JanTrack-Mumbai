@@ -1,4 +1,5 @@
 import { Link, useLocation } from "wouter";
+import { JanSahayak } from "@/components/jan-sahayak";
 import { Search, Menu, X, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -239,6 +240,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           © 2026 JanTrack Mumbai. All rights reserved. • Built for Democracy.
         </div>
       </footer>
+      <JanSahayak />
     </div>
   );
 }
