@@ -19,7 +19,8 @@ import {
   Loader2,
   AlertTriangle,
   User,
-  Flag
+  Flag,
+  FileText
 } from "lucide-react";
 import {
   Dialog,
@@ -386,6 +387,35 @@ export default function CandidateProfile() {
                 ))}
               </div>
             </div>
+
+            {/* Official Manifesto Download Link */}
+            {(() => {
+              const party = candidate.party;
+              let manifestoUrl = null;
+
+              if (party === 'BJP' || party === 'Shiv Sena') {
+                manifestoUrl = "https://www.devendrafadnavis.in/bmc26manifesto-english/";
+              } else if (['Shiv Sena (UBT)', 'Shiv Sena(UBT)', 'MNS', 'Maharashtra Navnirman Sena'].includes(party)) {
+                manifestoUrl = "https://drive.google.com/file/d/16UeIBWKki2QrqrQCZtsiWbGv7y3vhVXJ/view";
+              }
+
+              if (!manifestoUrl) return null;
+
+              return (
+                <div className="mt-4 flex justify-center">
+                  <a
+                    href={manifestoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="link" size="sm" className="gap-2 text-muted-foreground hover:text-primary h-auto py-1 text-xs">
+                      <FileText size={12} />
+                      Download Official Manifesto PDF
+                    </Button>
+                  </a>
+                </div>
+              );
+            })()}
           </TabsContent>
 
           <TabsContent value="funds" className="animate-in fade-in-50 duration-500">
