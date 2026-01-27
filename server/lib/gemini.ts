@@ -8,8 +8,20 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
+// Simple in-memory cache to save quota
+const responseCache = new Map<string, { reply: string, timestamp: number }>();
+const CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
+
 export async function getChatResponse(message: string) {
     try {
+        // Check cache first
+        const cacheKey = message.toLowerCase().trim();
+        const cached = responseCache.get(cacheKey);
+        if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
+            console.log("Serving from cache:", message);
+            return cached.reply;
+        }
+
         // Fetch real-time data from database
         const candidates = await storage.getCandidates();
 
@@ -44,6 +56,8 @@ OFFICIAL WARD DATA:
 
 If asked about a candidate, use the specific details from the list above.
 If the candidate is not in the list, say "I don't have information on that candidate yet."
+
+IMPORTANT: Keep your answer concise (under 100 words) to save time.
 `;
 
         const chat = model.startChat({
@@ -61,9 +75,26 @@ If the candidate is not in the list, say "I don't have information on that candi
 
         const result = await chat.sendMessage(message);
         const response = await result.response;
-        return response.text();
+        const textElement = response.text();
+
+        // Cache the successful response
+        responseCache.set(cacheKey, { reply: textElement, timestamp: Date.now() });
+
+        return textElement;
     } catch (error: any) {
         console.error("Gemini AI Error Detail:", JSON.stringify(error, null, 2));
-        return `Debug Error: ${error.message || "Unknown Error"}. Details: ${JSON.stringify(error)}`;
+
+        // Handle Rate Limiting specifically
+
+        if (error.message?.includes("429") || error.status === 429) {
+            return "I am currently receiving too many questions. Please wait a minute and try again. (Daily Limit Reach d)";
+        }
+
+
+        if (error.status === 429) {
+            return "I am currently receiving too many questions. Please wait a minute and try again. (Server is busy)";
+        }
+
+        return `I'm having trouble processing that right now. Please try again later. (Error: ${error.message})`;
     }
 }

@@ -19,6 +19,7 @@ export default function CandidatesPage() {
 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [wardFilter, setWardFilter] = useState("all");
+  const [partyFilter, setPartyFilter] = useState("all");
 
   const { data: candidates = [], isLoading, error } = useQuery<Candidate[]>({
     queryKey: ["/api/candidates"],
@@ -32,8 +33,11 @@ export default function CandidatesPage() {
     const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.constituency.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWard = wardFilter === "all" || c.ward === wardFilter;
-    return matchesSearch && matchesWard;
+    const matchesParty = partyFilter === "all" || c.party === partyFilter;
+    return matchesSearch && matchesWard && matchesParty;
   });
+
+  const uniqueParties = Array.from(new Set(candidates.map(c => c.party))).filter(p => p && p.trim() !== "").sort();
 
   const uniqueWards = Array.from(new Set(candidates.map(c => c.ward))).filter(w => w && w.trim() !== "").sort((a, b) => {
     const numA = parseInt(a.replace(/\D/g, '')) || 0;
@@ -68,7 +72,7 @@ export default function CandidatesPage() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, wardFilter]);
+  }, [searchTerm, wardFilter, partyFilter]);
 
   const totalPages = Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE);
   const paginatedCandidates = filteredCandidates.slice(
@@ -110,17 +114,31 @@ export default function CandidatesPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select value={wardFilter} onValueChange={setWardFilter}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Filter by Ward" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Wards</SelectItem>
-              {uniqueWards.map(ward => (
-                <SelectItem key={ward} value={ward}>{ward}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            <Select value={partyFilter} onValueChange={setPartyFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Party" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Parties</SelectItem>
+                {uniqueParties.map(party => (
+                  <SelectItem key={party} value={party}>{party}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={wardFilter} onValueChange={setWardFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Ward" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="all">All Wards</SelectItem>
+                {uniqueWards.map(ward => (
+                  <SelectItem key={ward} value={ward}>{ward}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

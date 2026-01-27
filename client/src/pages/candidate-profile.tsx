@@ -19,7 +19,8 @@ import {
   Loader2,
   AlertTriangle,
   User,
-  Flag
+  Flag,
+  FileText
 } from "lucide-react";
 import {
   Dialog,
@@ -153,8 +154,8 @@ export default function CandidateProfile() {
     <Layout>
       {/* Profile Header */}
       <div className="bg-background border-b">
-        <div className="container mx-auto px-4 py-12">
-          <div className="flex flex-col md:flex-row gap-8 items-start">
+        <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start text-center md:text-left">
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-br from-primary to-secondary rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
 
@@ -170,10 +171,10 @@ export default function CandidateProfile() {
               </div>
             </div>
 
-            <div className="flex-1 space-y-4">
-              <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+            <div className="flex-1 space-y-4 w-full">
+              <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 md:gap-3 mb-2">
                     <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5">
                       {candidate.party}
                     </Badge>
@@ -181,17 +182,19 @@ export default function CandidateProfile() {
                       <MapPin size={12} className="mr-1" /> {candidate.constituency}
                     </Badge>
                     <Badge variant="outline" className="border-muted bg-muted/20">
-                      Ward {candidate.ward}
+                      {candidate.ward.startsWith('Ward') ? candidate.ward : `Ward ${candidate.ward}`}
                     </Badge>
                   </div>
-                  <h1 className="text-4xl font-serif font-bold text-foreground">
+                  <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
                     {candidate.name}
                     {candidate.gender && <span className="text-2xl text-muted-foreground font-sans font-normal ml-2">({candidate.gender})</span>}
                   </h1>
                   <p className="text-muted-foreground mt-2 max-w-2xl">{candidate.bio}</p>
                 </div>
 
-                <div className="flex gap-2">
+
+
+                <div className="flex gap-2 mt-2 md:mt-0">
                   <Button
                     variant="outline"
                     size="sm"
@@ -271,7 +274,9 @@ export default function CandidateProfile() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
+
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 pt-4 md:pt-6">
                 <div className="bg-muted/30 p-4 rounded-lg border border-border/50">
                   <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Education</div>
                   <div className="font-semibold flex items-center gap-2">
@@ -307,12 +312,13 @@ export default function CandidateProfile() {
         </div>
       </div>
 
+
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="manifesto" className="space-y-8">
-          <TabsList className="bg-muted/50 p-1 rounded-full border">
-            <TabsTrigger value="manifesto" className="rounded-full px-6">Manifesto Tracker</TabsTrigger>
-            <TabsTrigger value="funds" className="rounded-full px-6">Funds & Projects</TabsTrigger>
-            <TabsTrigger value="feedback" className="rounded-full px-6">Public Feedback</TabsTrigger>
+          <TabsList className="w-full justify-start overflow-x-auto bg-transparent p-0 border-b rounded-none h-auto md:bg-muted/50 md:p-1 md:rounded-full md:border md:justify-center no-scrollbar">
+            <TabsTrigger value="manifesto" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none md:rounded-full md:border-b-0 md:data-[state=active]:bg-background md:data-[state=active]:shadow px-4 md:px-6 py-2 md:py-1.5 whitespace-nowrap">Manifesto Tracker</TabsTrigger>
+            <TabsTrigger value="funds" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none md:rounded-full md:border-b-0 md:data-[state=active]:bg-background md:data-[state=active]:shadow px-4 md:px-6 py-2 md:py-1.5 whitespace-nowrap">Funds & Projects</TabsTrigger>
+            <TabsTrigger value="feedback" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none md:rounded-full md:border-b-0 md:data-[state=active]:bg-background md:data-[state=active]:shadow px-4 md:px-6 py-2 md:py-1.5 whitespace-nowrap">Public Feedback</TabsTrigger>
           </TabsList>
 
           <TabsContent value="manifesto" className="space-y-8 animate-in fade-in-50 duration-500">
@@ -386,6 +392,35 @@ export default function CandidateProfile() {
                 ))}
               </div>
             </div>
+
+            {/* Official Manifesto Download Link */}
+            {(() => {
+              const party = candidate.party;
+              let manifestoUrl = null;
+
+              if (party === 'BJP' || party === 'Shiv Sena') {
+                manifestoUrl = "https://www.devendrafadnavis.in/bmc26manifesto-english/";
+              } else if (['Shiv Sena (UBT)', 'Shiv Sena(UBT)', 'MNS', 'Maharashtra Navnirman Sena'].includes(party)) {
+                manifestoUrl = "https://drive.google.com/file/d/16UeIBWKki2QrqrQCZtsiWbGv7y3vhVXJ/view";
+              }
+
+              if (!manifestoUrl) return null;
+
+              return (
+                <div className="mt-4 flex justify-center">
+                  <a
+                    href={manifestoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="link" size="sm" className="gap-2 text-muted-foreground hover:text-primary h-auto py-1 text-xs">
+                      <FileText size={12} />
+                      Download Official Manifesto PDF
+                    </Button>
+                  </a>
+                </div>
+              );
+            })()}
           </TabsContent>
 
           <TabsContent value="funds" className="animate-in fade-in-50 duration-500">
@@ -447,8 +482,8 @@ export default function CandidateProfile() {
               </div>
             </div>
           </TabsContent>
-        </Tabs >
-      </div >
-    </Layout >
+        </Tabs>
+      </div>
+    </Layout>
   );
 }

@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/:match*",
+            "destination": "https://jantrack-mumbai.onrender.com/api/:match*"
+        }
+    ]
+}

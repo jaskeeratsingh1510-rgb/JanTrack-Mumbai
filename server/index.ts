@@ -24,6 +24,12 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+import cors from "cors";
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:5000",
+  credentials: true,
+}));
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -101,7 +107,7 @@ import { setupAuth } from "./auth";
   httpServer.listen(
     {
       port,
-      host: "127.0.0.1",
+      host: "0.0.0.0",
       // reusePort: true,
     },
     () => {

@@ -2,11 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, Send, X, MessageSquare, Loader2, Bot } from "lucide-react";
+import { Send, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { RobotAvatar } from "./robot-avatar";
 
 interface Message {
     role: "user" | "bot";
@@ -38,7 +38,7 @@ export function JanSahayak() {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages, isOpen]);
+    }, [messages, isOpen, chatMutation.isPending]);
 
     const handleSend = () => {
         if (!inputValue.trim()) return;
@@ -63,87 +63,123 @@ export function JanSahayak() {
                         initial={{ opacity: 0, scale: 0.8, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                        className="fixed bottom-24 right-6 z-50 w-[350px] shadow-2xl"
+                        className="fixed bottom-28 right-6 z-50 w-[380px] shadow-2xl origin-bottom-right"
                     >
-                        <Card className="border-primary/20 bg-background/95 backdrop-blur-sm overflow-hidden">
-                            <CardHeader className="bg-primary text-primary-foreground p-4 flex flex-row items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Bot className="h-5 w-5" />
+                        <Card className="border-0 shadow-2xl bg-background/95 backdrop-blur-md overflow-hidden flex flex-col h-[500px]">
+                            {/* Header */}
+                            <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-4 flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-white/10 p-1 rounded-full">
+                                        <RobotAvatar className="w-10 h-10" isThinking={chatMutation.isPending} />
+                                    </div>
                                     <div>
-                                        <CardTitle className="text-base">JanSahayak AI</CardTitle>
-                                        <p className="text-[10px] opacity-80">Powered by Gemini</p>
+                                        <h3 className="font-bold text-lg leading-none">JanSahayak</h3>
+                                        <p className="text-xs opacity-80 font-medium mt-1 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                            Online • AI Assistant
+                                        </p>
                                     </div>
                                 </div>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
+                                    className="h-8 w-8 text-primary-foreground hover:bg-white/20 rounded-full"
                                     onClick={() => setIsOpen(false)}
                                 >
-                                    <X className="h-4 w-4" />
+                                    <X className="h-5 w-5" />
                                 </Button>
-                            </CardHeader>
-                            <CardContent className="p-0 h-[400px] flex flex-col">
+                            </div>
+
+                            {/* Chat Area */}
+                            <div className="flex-1 overflow-hidden relative bg-slate-50 dark:bg-slate-900/50">
                                 <div
                                     ref={scrollRef}
-                                    className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+                                    className="h-full overflow-y-auto p-4 space-y-4 scroll-smooth"
                                 >
                                     {messages.map((msg, idx) => (
-                                        <div
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
                                             key={idx}
                                             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                                         >
-                                            <div
-                                                className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${msg.role === "user"
-                                                        ? "bg-primary text-primary-foreground rounded-tr-none"
-                                                        : "bg-muted text-foreground rounded-tl-none border"
-                                                    }`}
-                                            >
-                                                {msg.text}
+                                            <div className={`flex items-end gap-2 max-w-[85%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                                                {msg.role === "bot" && (
+                                                    <RobotAvatar className="w-6 h-6 mb-1 shrink-0" />
+                                                )}
+                                                <div
+                                                    className={`px-4 py-2.5 text-sm shadow-sm ${msg.role === "user"
+                                                        ? "bg-primary text-primary-foreground rounded-2xl rounded-br-none"
+                                                        : "bg-white dark:bg-slate-800 text-foreground rounded-2xl rounded-bl-none border border-border/50"
+                                                        }`}
+                                                >
+                                                    {msg.text}
+                                                </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
+
                                     {chatMutation.isPending && (
-                                        <div className="flex justify-start">
-                                            <div className="bg-muted rounded-2xl rounded-tl-none px-4 py-2 flex items-center gap-1">
-                                                <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                                <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                                <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></div>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="flex justify-start"
+                                        >
+                                            <div className="flex items-end gap-2">
+                                                <RobotAvatar className="w-6 h-6 mb-1 shrink-0" isThinking={true} />
+                                                <div className="bg-white dark:bg-slate-800 border border-border/50 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
+                                                    <div className="flex gap-1">
+                                                        <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                                        <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                                        <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce" />
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </div>
-                                <div className="p-3 bg-secondary/5 border-t flex gap-2">
+                            </div>
+
+                            {/* Input Area */}
+                            <div className="p-3 bg-background border-t shrink-0">
+                                <div className="flex gap-2 items-center bg-slate-50 dark:bg-slate-900 rounded-full px-1 border focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                                     <Input
-                                        placeholder="Ask about wards..."
+                                        placeholder="Ask about candidates..."
                                         value={inputValue}
                                         onChange={(e) => setInputValue(e.target.value)}
                                         onKeyDown={handleKeyPress}
-                                        className="flex-1 bg-background"
+                                        className="flex-1 bg-transparent border-0 focus-visible:ring-0 h-10 px-4"
                                         disabled={chatMutation.isPending}
                                     />
                                     <Button
                                         size="icon"
                                         onClick={handleSend}
                                         disabled={chatMutation.isPending || !inputValue.trim()}
-                                        className="shrink-0"
+                                        className="rounded-full w-9 h-9 shrink-0 mr-1"
                                     >
-                                        {chatMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                                        {chatMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 ml-0.5" />}
                                     </Button>
                                 </div>
-                            </CardContent>
+                            </div>
                         </Card>
                     </motion.div>
                 )}
             </AnimatePresence>
 
+            {/* Floating Action Button */}
             <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center border-2 border-secondary hover:bg-primary/90 transition-colors"
+                className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center border-4 border-white dark:border-slate-800 hover:shadow-2xl transition-all overflow-hidden group"
             >
-                {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+                {isOpen ? (
+                    <X size={28} />
+                ) : (
+                    <div className="relative w-full h-full flex items-center justify-center">
+                        <RobotAvatar className="w-12 h-12 transform group-hover:scale-110 transition-transform" />
+                    </div>
+                )}
             </motion.button>
         </>
     );

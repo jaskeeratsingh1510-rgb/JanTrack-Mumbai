@@ -53,6 +53,13 @@ export function CandidateCard({ candidate }: { candidate: Candidate }) {
             className="absolute inset-0 w-full h-full object-cover opacity-80"
           />
         )}
+        {candidate.party === "Independent" && (
+          <img
+            src="/assets/independent-bg.png"
+            alt="Independent Background"
+            className="absolute inset-0 w-full h-full object-cover opacity-80"
+          />
+        )}
         <div className="absolute top-4 right-4 z-10">
           <Badge
             variant={candidate.criminalCases > 0 ? "destructive" : "outline"}

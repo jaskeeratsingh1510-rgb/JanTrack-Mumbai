@@ -216,7 +216,7 @@ export default function Home() {
             </div>
             <div className="text-center p-4">
               <div className="text-3xl font-bold text-slate-900 font-serif">
-                <Counter value={59791.33} prefix="₹" suffix="Cr" />
+                <Counter value={58432} prefix="₹" suffix="Cr" />
               </div>
               <div className="text-sm text-slate-500 mt-1">Funds Monitored</div>
             </div>
