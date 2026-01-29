@@ -162,7 +162,7 @@ export default function Home() {
                 <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Search by candidate or constituency..."
-                  className="pl-10 h-12 bg-white/90 border-transparent text-foreground placeholder:text-black focus:bg-white text-lg shadow-lg"
+                  className="pl-10 h-12 bg-white/90 border-transparent text-black placeholder:text-black focus:bg-white text-lg shadow-lg"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={handleKeyDown}
